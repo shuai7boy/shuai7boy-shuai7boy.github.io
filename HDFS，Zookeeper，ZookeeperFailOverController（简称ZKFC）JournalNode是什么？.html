@@ -1,0 +1,24 @@
+<p><span style="font-size: 15px; color: #3366ff;">HDFS介绍：</span></p>
+<p>简述：</p>
+<p>&nbsp;<span>Hadoop Distributed File System（HDFS）是一种分布式文件系统，设计用于在商用硬件上运行。</span><span>它与现有的分布式文件系统有许多相似之处。</span><span>但是，与其他分布式文件系统的差异很大。</span><span>HDFS具有高度容错能力，旨在部署在低成本硬件上。</span><span>HDFS提供对应用程序数据的高吞吐量访问，适用于具有大型数据集的应用程序。</span><span>HDFS放宽了一些POSIX要求，以实现对文件系统数据的流式访问。</span><span>HDFS最初是作为Apache Nutch网络搜索引擎项目的基础设施而构建的。</span><span>HDFS是Apache Hadoop Core项目的一部分。</span></p>
+<p>主要成分：</p>
+<p>&nbsp;HDFS主要由NameNode和DataNode组成。NameNode负责存储数据的元数据信息和数据的偏移量。DataNode负责存储数据。</p>
+<p>数据进入先通过NameNode</p>
+<p>&nbsp;NameNode在Hadoop1.x存在一个，在Hadoop2.x可以有两个了。推荐使用2.x，因为2.x相比1.x更能快速切换新的NameNode。</p>
+<p>&nbsp;NameNode里面由EditLog和FsImage组成，EdtiLog记录的是操作日志，FsImage记录的所有文件的元数据（包括:文件大小，文件名称，创建时间等等）。另外FsImage还记录了文件的偏移量，不过这个偏移量是由DataNode做心跳机制反馈给NameNode的。当NameNode启动或者触发配置的检查点时，它会读取EditLog和FsImage，并使用EditLog应用到FsImage并加载到缓存，然后刷新EditLog。</p>
+<p>我画了个交互图如下:</p>
+<p>&nbsp;</p>
+<p><img src="https://img2018.cnblogs.com/blog/1747187/201909/1747187-20190915143749879-2066474445.png" alt="" /></p>
+<p><span style="font-size: 15px; color: #3366ff;">Quorum Journal Manager&nbsp;：</span></p>
+<p>简述:</p>
+<p>由于部署了两个NameNode，并且仅仅允许一台（ActiveNode）对外提供服务，另一台（StandByNode）在NameNode不可用的时候切换过去，这样就要保证StandBy数据是最新的。 而JournalManager就是接受ActiveNode的变动日志，然后StandBy节点读取同步更新数据。</p>
+<p>结合上面的NameNode我画了个图如下：</p>
+<p>&nbsp;<img src="https://img2018.cnblogs.com/blog/1747187/201909/1747187-20190915153212222-1096267088.png" alt="" /></p>
+<p>&nbsp;&nbsp;</p>
+<p><span style="font-size: 15px; color: #3366ff;">Zookeeper和ZookeeperFailOverController介绍：</span></p>
+<p>&nbsp;简述：</p>
+<p>Zookeeper简称ZK，ZookeeperFailOverController简称ZKFC</p>
+<p>上面使用JournalManager遇到故障的时候需要手动切换NameNode节点，这样处理会很不及时，所以必须想个办法自动切换，这样就有了Zookeeper，然后配套的出现了ZKFC，ZKFC和NameNode是一一对应的，它是一个守护进程，它负责和ZK通信，并且时刻检查NameNode的健康状况。它通过不断的ping，如果能ping通，则说明节点是健康的。然后ZKFC会和ZK保持一个持久通话，及Session对话，并且ActiveNode在ZK里面记录了一个"锁"，这样就会Prevent其它节点成为ActiveNode，当会话丢失时，ZKFC会发通知给ZK，同时删掉"锁"，这个时候其它NameNode会去争抢并建立新的&ldquo;锁&rdquo;，这个过程叫ZKFC的选举。</p>
+<p>结合上面简要图如下：</p>
+<p>&nbsp;<img src="https://img2018.cnblogs.com/blog/1747187/201909/1747187-20190915160650385-1195861554.png" alt="" /></p>
+<p><a href="https://www.cnblogs.com/shun7man/p/11518083.html" target="_blank">系列传送门</a></p>

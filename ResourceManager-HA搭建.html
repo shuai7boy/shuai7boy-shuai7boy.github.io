@@ -1,0 +1,92 @@
+<p><span style="font-size: 14px;"><a href="https://www.cnblogs.com/shun7man/p/11576182.html" target="_blank">上一篇</a>中我们了解了MapReduce和Yarn的基本概念，接下来带领大家搭建下Mapreduce-HA的框架。</span></p>
+<p><span style="color: #888888;"><em><span style="font-size: 15px;"><span style="font-size: 14pt;">结构图如下：</span></span></em></span></p>
+<p>&nbsp;　　<img src="https://img2018.cnblogs.com/blog/1747187/201910/1747187-20191026103753879-532911960.png" alt="" /></p>
+<p><span style="color: #888888;"><em><span style="font-size: 14pt;">开始搭建：</span></em></span></p>
+<p><span style="color: #000000; font-size: 18px;">一.配置环境</span></p>
+<p><span style="font-size: 14px;">注:可以现在一台计算机上进行配置，然后分发给其它服务器</span></p>
+<p><span style="color: #000000; font-size: 14px;">1.1 编辑mapred-site.xml文件：</span></p>
+<p><span style="font-size: 14px;">进入目录&nbsp;/opt/hadoop/hadoop-2.6.5/etc/hadoop</span></p>
+<p><span style="font-size: 14px;">cd&nbsp;&nbsp;/opt/hadoop/hadoop-2.6.5/etc/hadoop</span></p>
+<p><span style="font-size: 14px;">vim&nbsp;mapred-site.xml</span></p>
+<p><span style="font-size: 14px;">添加如下配置：　　</span></p>
+<pre>&lt;configuration&gt;
+    &lt;property&gt;
+        &lt;name&gt;mapreduce.framework.name&lt;/name&gt;
+        &lt;value&gt;yarn&lt;/value&gt; &lt;!--指定mapreduce通过yarn获取数据，还可以填写参数localhost--&gt;
+    &lt;/property&gt;
+    &lt;property&gt;
+        &lt;name&gt;mapreduce.application.classpath&lt;/name&gt;
+        &lt;value&gt;$HADOOP_MAPRED_HOME/share/hadoop/mapreduce/*:$HADOOP_MAPRED_HOME/share/hadoop/mapreduce/lib/*&lt;/value&gt;
+    &lt;/property&gt;
+&lt;/configuration&gt;</pre>
+<p><span style="font-size: 14px;">1.2 编辑yarn-site.xml文件:</span></p>
+<p><span style="font-size: 14px;">vim&nbsp;yarn-site.xml</span></p>
+<p><span style="font-size: 14px;">添加如下配置：</span></p>
+<pre>&lt;configuratoin&gt;
+  &lt;property&gt;
+    &lt;name&gt;yarn.nodemanager.aux-services&lt;/name&gt;
+    &lt;value&gt;mapreduce_shuffle&lt;/value&gt; &lt;!--指定nodemanager可以拉取数据--&gt;
+  &lt;/property&gt;
+  &lt;property&gt;
+    &lt;name&gt;yarn.resourcemanager.ha.enabled&lt;/name&gt;
+    &lt;value&gt;true&lt;/value&gt;&lt;!--启动resourcemanager高可用--&gt;
+  &lt;/property&gt;
+  &lt;property&gt;
+    &lt;name&gt;hadoop.zk.address&lt;/name&gt;&lt;!--配置zookeeper地址--&gt;
+    &lt;value&gt;tuge1:2181,tuge2:2181,tuge3:2181,tuge4:2181&lt;/value&gt;
+  &lt;/property&gt;
+  &lt;property&gt;
+    &lt;name&gt;yarn.resourcemanager.cluster-id&lt;/name&gt;
+    &lt;value&gt;cluster1&lt;/value&gt;&lt;!--配置resourcemanager虚拟地址到物理地址的映射--&gt;
+  &lt;/property&gt;
+  &lt;property&gt;
+    &lt;name&gt;yarn.resourcemanager.ha.rm-ids&lt;/name&gt;
+    &lt;value&gt;rm1,rm2&lt;/value&gt;
+  &lt;/property&gt;
+  &lt;property&gt;
+    &lt;name&gt;yarn.resourcemanager.hostname.rm1&lt;/name&gt;
+    &lt;value&gt;tuge1&lt;/value&gt;
+  &lt;/property&gt;
+  &lt;property&gt;
+    &lt;name&gt;yarn.resourcemanager.hostname.rm2&lt;/name&gt;
+    &lt;value&gt;tuge2&lt;/value&gt;
+  &lt;/property&gt;
+  &lt;property&gt;
+    &lt;name&gt;yarn.resourcemanager.webapp.address.rm1&lt;/name&gt;
+    &lt;value&gt;tuge1:8088&lt;/value&gt;
+  &lt;/property&gt;
+  &lt;property&gt;
+    &lt;name&gt;yarn.resourcemanager.webapp.address.rm2&lt;/name&gt;
+    &lt;value&gt;tuge2:8088&lt;/value&gt;
+  &lt;/property&gt;<br />&lt;/configuration&gt; </pre>
+<p>&nbsp;<img src="https://img2018.cnblogs.com/blog/1747187/201910/1747187-20191026150916752-345156282.png" alt="" /></p>
+<p><span style="color: #000000;"><span style="font-size: 18px;">二.启动程序</span></span></p>
+<p><span style="font-size: 14px;">&nbsp;在tuge1服务器启动：</span></p>
+<p><span style="font-size: 14px;">&nbsp;vim&nbsp; /opt/hadoop/hadoop-2.6.5/sbin</span></p>
+<p><span style="font-size: 14px;">&nbsp;start-yarn.sh</span></p>
+<p><span style="font-size: 14px;">&nbsp;启动后，使用jps即可查看resourcemanager和nodemanager是否启动成功。</span></p>
+<p><span style="color: #000000;"><span style="font-size: 18px;">三.浏览效果</span></span></p>
+<p><img src="https://img2018.cnblogs.com/blog/1747187/201910/1747187-20191026152043724-1679200036.png" alt="" /></p>
+<p><span style="color: #000000;"><span style="font-size: 18px;">四.实现一个计算Demo</span></span></p>
+<p><span style="font-size: 15px;">&nbsp;<span style="font-size: 14px;">4.1 在hdfs里面创建一个10000行的test.txt文件</span></span></p>
+<p><span style="font-size: 14px;">使用命令：&nbsp;</span></p>
+<p><span style="font-size: 14px;">//首先创建一个root文件夹</span></p>
+<p><span style="font-size: 14px;">hadoop fs -mkdir /user/root/</span></p>
+<p><span style="font-size: 14px;">//在linux随便找一个目录创建一个文件，并加入1万行What are you doing 123?</span></p>
+<p><span style="font-size: 14px;">touch test.txt</span></p>
+<p><span style="font-size: 14px;">vim test.txt</span></p>
+<p><span style="font-size: 14px;">然后输入数字10000，再点击i进行输入What are you doing 123? ，然后按Esc 这时10000行What are you doing 123？就录入了，然后保存。</span></p>
+<p><span style="font-size: 14px;">//将本地文件复制到hdfs上面</span></p>
+<p><span style="font-size: 14px;">hadoop dfs -scpFromLocal test.txt /user/root/</span></p>
+<p><span style="font-size: 14px;">4.2 进入/opt/hadoop/hadoop-2.6.5/share/hadoop/mapreduce</span></p>
+<p><span style="font-size: 14px;">cd&nbsp;/opt/hadoop/hadoop-2.6.5/share/hadoop/mapreduce</span></p>
+<p><span style="font-size: 14px;">4.3 使用mapreduce统计刚刚上传文件里面的单词数量</span></p>
+<p><span style="font-size: 14px;">hadoop jar&nbsp;hadoop-mapreduce-examples-2.6.5.jar&nbsp; /user/root/test.txt&nbsp; /user/root/result&nbsp; &nbsp;--意思是使用hadoop 运行jar环境，并执行程序，统计的文件路径，输出结果路径（这个路径必须是空的或者不存在的）</span></p>
+<p><span style="font-size: 14px;">4.4 控制台执行效果图和web ui浏览效果图</span></p>
+<p><img src="https://img2018.cnblogs.com/blog/1747187/201910/1747187-20191026171542406-1896215050.png" alt="" /></p>
+<p><img src="https://img2018.cnblogs.com/blog/1747187/201910/1747187-20191026171612121-1162029836.png" alt="" /></p>
+<p><span style="font-size: 14px;">4.5 最后我们可以在上面的输出目录查看统计结果</span></p>
+<p><span style="font-size: 14px;">hadoop fs -cat /user/root/result/part-r-00000</span></p>
+<p><img src="https://img2018.cnblogs.com/blog/1747187/201910/1747187-20191026171824207-133668641.png" alt="" /></p>
+<p><span style="font-size: 14px;">从上图可以看到，每个单词统计均为10000，那么就证明我们搭建成功啦~</span></p>
+<p><span style="font-size: 14px;"><a href="https://www.cnblogs.com/shun7man/p/11518083.html" target="_blank">系列传送门</a></span></p>

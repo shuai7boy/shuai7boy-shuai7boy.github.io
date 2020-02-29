@@ -1,0 +1,20 @@
+<p>简单概括：Map/Reduce是分布式离线处理的一个框架。 Yarn是Map/Reduce中的一个资源管理器。</p>
+<p><strong><span style="font-size: 18px;">一.图形说明下Map/Reduce结构：</span></strong></p>
+<p>&nbsp; &nbsp;官方示意图：</p>
+<p>&nbsp;　　<img src="https://img2018.cnblogs.com/blog/1747187/201910/1747187-20191031203929861-141430234.png" alt="" /></p>
+<p>&nbsp;&nbsp;另外还可以参考这个：</p>
+<p>&nbsp;<img src="https://img2018.cnblogs.com/blog/1747187/201910/1747187-20191026175904378-2098835392.png" alt="" /></p>
+<p>流程介绍：</p>
+<p>HDFS首先会把块进行逻辑上切片处理，然后进行Map映射。一个切片对应一个Map映射。</p>
+<p>因为文件内容有可能一个单词被切到两个文件里面，这样计算就会有问题，所以Map映射时除了第一个切片完全映射，其余的映射都会从第二行开始映射，而第一行传递给上一个Map处理。&nbsp;</p>
+<p>Map程序初始化会设定一个阈值，比如80%，当超过这个值的时候就会就会进行内存溢出。溢出前会进行一个【快速排序】，排完后写入硬盘分区。（不设置阈值，当内存满后，就会阻塞数据继续写入。设定的阈值根据实际情况设定，太小了会增加读写压力，太大了会产生阻塞。）</p>
+<p>程序可以设置合并操作，当分区数超过设定值后就进行合并。（比如分区＞3后）（合并后，相同key的数据就压缩了，拉取的时候就会减少IO）</p>
+<p>Reduce会检查是否Map完，有一个Map完后就能拉取一次。</p>
+<p>Reduce拉取的时候会有一个真迭代器和一个假迭代器进行嵌套，比如一组数据 A&nbsp; &nbsp;1&nbsp; &nbsp;A&nbsp; 1&nbsp; A&nbsp; 1&nbsp; B&nbsp; 1,假迭代器会进行循环然后取下一条数据进行比较看是否相同，相同的话进行累加值，再取下一条，这样下一条下一条的取，直到key不相同时候，结束本组循环，进行下一组循环。 这样A就统计出3，B就统计出1来了。</p>
+<h5><strong style="font-size: 14px;"><span style="font-size: 18px;">二.图形说明下Yarn的结构：</span></strong></h5>
+<p><img src="https://img2018.cnblogs.com/blog/1747187/201910/1747187-20191022172637811-9556915.png" alt="" /></p>
+<p>&nbsp;流程介绍：首先Client请求ResourceManager，然后ResourceManager分配ApplicationMaster，ApplicatoinMaster向ResourceManager请求分配Container。Container一部分执行Map任务，一部分执行Reduce任务。</p>
+<p><strong><span style="font-size: 18px;">三.图形说明下Map/Reduce和Yarn在整个Hadoop系统中的位置以及为什么产生Yarn：</span></strong></p>
+<p><img src="https://img2018.cnblogs.com/blog/1747187/201910/1747187-20191025181729726-1110272918.png" alt="" /></p>
+<p>由于产生了多种计算框架，所以需要一个资源管理器来对资源进行分配使用。&nbsp;</p>
+<p><a href="https://www.cnblogs.com/shun7man/p/11518083.html" target="_blank">系列传送门</a>&nbsp; 学习官网：&nbsp;<a href="http://hadoop.apache.org/" target="_blank">http://hadoop.apache.org/</a></p>

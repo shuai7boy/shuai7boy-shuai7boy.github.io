@@ -1,0 +1,186 @@
+<p><span style="color: #000000;"><span style="font-size: 14pt;">一.简述</span></span></p>
+<p>上一篇了解了Zookeeper和HDFS的一些概念，今天就带大家从头到尾搭建一下，其中遇到的一些坑也顺便记录下。</p>
+<p><span style="color: #333399;">1.1 搭建的拓扑图如下：</span></p>
+<p><img src="https://img2018.cnblogs.com/blog/1747187/201909/1747187-20190916184726962-1066216423.png" alt="" /></p>
+<p><span style="color: #333399;">1.2 部署环境：</span>Centos3.1，java1.8.0 ，Hadoop3.2，Zookeeper3.5.5</p>
+<p>Linux环境搭建我这里就不介绍了，请自行百度（PS：需要注意的一点是，最后一步硬盘大小最好改大一些，比如60G）。</p>
+<p><span style="color: #333399;">1.3 搭建Linux的时候可能会遇到这么几个问题：</span></p>
+<p>首先安装系统的时候不要选择精简版，这样会有很多软件不全，尽量去选择全一些的版本，比如我选择的Infrastucture Server，然后全勾上了，这样虽然占用空间大了些，但是省去了后续安装很多组件的烦恼。</p>
+<p><span style="font-size: 14pt;"><span style="color: #000000;">二.正文</span></span></p>
+<p><span style="font-size: 16px; color: #ff0000;">小技巧：<span style="color: #000000;">在搭建之前先说个小技巧，我们搭建的时候可以先在一台虚拟机上部署，然后通过克隆到其它机器，修改部分该修改的参数就行了，这样就方便了环境的频繁部署。</span></span></p>
+<p><span style="color: #333399;">2.1 配置环境</span></p>
+<p><span style="color: #333399;">2.1.1 设置固定ip</span></p>
+<p><span style="font-size: 15px; color: #000000;">&nbsp;1.进入到 /etc/sysconfig/network-scripts</span></p>
+<p><span style="font-size: 15px; color: #000000;">&nbsp;2.点击Vmware上面的编辑-&gt;虚拟网络编辑器 点开NAT设置，里面可以看到网关IP</span></p>
+<p><span style="font-size: 15px; color: #000000;">&nbsp;3.编辑ifcfg配置文件，修改固定ip，网关地址，DNS映射，子网掩码等</span></p>
+<p><span style="font-size: 15px; color: #000000;">&nbsp; vim&nbsp; ifcfg-eno16777736</span></p>
+<p><span style="font-size: 15px; color: #000000;">&nbsp;&nbsp;</span></p>
+<p>TYPE=Ethernet&nbsp; &nbsp;&nbsp;</p>
+<p>#标记显示固定ip</p>
+<p>BOOTPROTO=static&nbsp;&nbsp;<br />DEFROUTE=yes<br />PEERDNS=yes<br />PEERROUTES=yes<br />IPV4_FAILURE_FATAL=no<br />IPV6INIT=yes<br />IPV6_AUTOCONF=yes<br />IPV6_DEFROUTE=yes<br />IPV6_PEERDNS=yes<br />IPV6_PEERROUTES=yes<br />IPV6_FAILURE_FATAL=no</p>
+<p>NAME=eno16777736<br />DEVICE=eno16777736<br />ONBOOT=yes</p>
+<p>#ip地址，这个以tuge1举例，我设定的为100，后面的tuge2，tuge3，tuge4可以分别设置为101，102，103<br />IPADDR=192.168.40.100</p>
+<p>#网关地址，这个根据上面第二步可以获得<br />GATEWAY=192.168.40.2<br />NETMASK=255.255.255.0</p>
+<p>#DNS地址<br />DNS1=114.114.114.114<br />DNS2=8.8.8.8</p>
+<p><span style="font-size: 15px; color: #000000;">4.重启服务：service network restart&nbsp;</span></p>
+<p><span style="color: #333399;">2.1.2 配置hadoop环境</span></p>
+<p>&nbsp;1.打开tuge1，在/opt/&nbsp; 下面创建一个文件夹hadoop</p>
+<p>&nbsp; &nbsp;cd /opt/</p>
+<p>&nbsp; &nbsp;mkdir hadoop</p>
+<p>&nbsp;2.进入到hadoop，在官网找到对应的hadoop版本进行下载,然后对文件进行解压</p>
+<p>&nbsp;cd&nbsp; hadoop</p>
+<p>&nbsp;wget&nbsp; http://mirror.bit.edu.cn/apache/hadoop/common/hadoop-3.2.0/hadoop-3.2.0.tar.gz</p>
+<p>&nbsp;tar -xvf&nbsp;&nbsp;hadoop-3.2.0.tar.gz</p>
+<p><span style="color: #333399;">2.1.3 配置java环境</span></p>
+<p>&nbsp;3.然后回到/opt/下面创建一个java文件</p>
+<p>&nbsp;cd /opt/</p>
+<p>&nbsp;mkdir java</p>
+<p>&nbsp;4.进入到java，通过ftp将jdk上传到此目录，并进行解压</p>
+<p>&nbsp;cd java&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</p>
+<p>&nbsp;tar -xvf&nbsp;jdk-8u221-linux-x64.tar.gz</p>
+<p><span style="color: #333399;">2.1.4 配置Zookeeper环境</span></p>
+<p><span style="color: #000000;">&nbsp;1.进入到 /opt/下面创建zookeeper文件夹</span></p>
+<p>&nbsp;cd /opt/</p>
+<p>&nbsp;mkdir zookeeper</p>
+<p>&nbsp;2.进入到zookeeper文件夹，下载zookeeper，然后对文件进行解压</p>
+<p>&nbsp;cd&nbsp; zookeeper</p>
+<p>&nbsp;wget&nbsp; http://mirror.bit.edu.cn/apache/zookeeper/stable/apache-zookeeper-3.5.5-bin.tar.gz</p>
+<p>&nbsp;tar -xvf&nbsp;apache-zookeeper-3.5.5-bin.tar.gz</p>
+<p><span style="color: #333399;">2.1.5 将配置写入配置文件</span></p>
+<p>打开/etc/profile 配置Hadoop和Java环境</p>
+<p>&nbsp;vim /etc/profile</p>
+<p>&nbsp;export JAVA_HOME=/opt/java/jdk1.8.0_221</p>
+<p>&nbsp;export HADOOP_HDFS_HOME=/opt/hadoop/hadoop-3.2.0</p>
+<p>&nbsp;export HADOOP_CONF_DIR=/opt/hadoop/hadoop-3.2.0/etc/hadoop</p>
+<p>&nbsp;export HADOOP_HOME=/opt/hadoop/hadoop-3.2.0</p>
+<p>&nbsp;export ZK_HOME=/opt/zookeeper/apache-zookeeper-3.5.5-bin</p>
+<p>&nbsp;PATH=$JAVA_HOME/bin:$PATH:${HADOOP_HOME}/bin:${HADOOP_HOME}/sbin:$ZK_HOME/bin</p>
+<p>&nbsp;CLASSPATH=$JAVA_HOME/jre/lib/ext:$JAVA_HOME/lib/tools.jar</p>
+<p>&nbsp;export PATH&nbsp;&nbsp;CLASSPATH</p>
+<p>配置好后，使用source /etc/profile 重新加载配置文件。</p>
+<p><span style="color: #333399;">2.1.6 验证环境配置</span></p>
+<p>java --version</p>
+<p>hadoop version</p>
+<p><span style="font-size: 14px; color: #000000;">10.将上面配置好的tuge1克隆到tuge2，tuge3，tuge4，并修改对应的ip为101，102，103</span></p>
+<p><span style="font-size: 14px; color: #000000;">有关Linux克隆自行百度</span></p>
+<p>2.1.7&nbsp;<a href="https://blog.csdn.net/junzixing1985/article/details/78700810" target="_blank">修改主机别名</a></p>
+<p>vim /etc/hostname 修改为tuge1</p>
+<p>PS:其它服务器照着配置即可</p>
+<p><span style="color: #333399;">2.1.8 修改host文件添加映射别名</span></p>
+<p>&nbsp;vim /etc/hosts 添加</p>
+<p>192.168.40.100 tuge1</p>
+<p>192.168.40.101 tuge2</p>
+<p>192.168.40.102 tuge3</p>
+<p>192.168.40.103 tuge4</p>
+<p>&nbsp;</p>
+<p><span style="color: #333399;">2.2 搭建HDFS-Zookeeper</span></p>
+<p>&nbsp;上面配置好环境后，接下来就是搭建HDFS了。这个可以参照<a href="https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-common/SingleCluster.html" target="_blank">官网</a>一步一步来：</p>
+<p>&nbsp; 2.2.1&nbsp;<strong><a href="https://www.cnblogs.com/opsprobe/p/9147934.html" target="_blank">安装SSH</a>：</strong></p>
+<p>&nbsp; yum install openssh-server</p>
+<p>&nbsp; 2.2.2&nbsp;<strong><a href="https://www.cnblogs.com/xj-blog/p/10002578.html" target="_blank">配置免密登陆</a></strong></p>
+<p>&nbsp;cd /.ssh</p>
+<p>ssh-keygen -t rsa</p>
+<p>ssh-copy-id&nbsp; localhost</p>
+<p>(以上配置四台都执行，然后都能免密访问了)</p>
+<p>在tuge1和tuge2服务器之间也设置互相免密，这样方便以后使用journalnode同步</p>
+<p>另外把tuge1的密钥分发到tuge2，tuge3，tuge4上面，方便tuge1对所有机器的控制</p>
+<p><span style="color: #333399;">&nbsp;2.2.3 配置namenode节点为tuge1，tuge2，并设置遇到故障自动切换</span></p>
+<p>&nbsp;编辑hadoop配置文件：</p>
+<p>cd /opt/hadoop/hadoop-3.2.0/etc/hadoop</p>
+<p>vim hdfs-site.xml</p>
+<p>---------------------------------------------</p>
+<p>&lt;configuration&gt;<br />  &lt;property&gt;<br />    &lt;!-- DataNode副本数，伪分布模式配置为1  --&gt;<br />    &lt;name&gt;dfs.replication&lt;/name&gt;<br />    &lt;value&gt;2&lt;/value&gt;<br />  &lt;/property&gt;<br />  &lt;property&gt;<br />    &lt;name&gt;dfs.http.address&lt;/name&gt;<br />    &lt;value&gt;0.0.0.0:50070&lt;/value&gt;<br />  &lt;/property&gt;<br />    &lt;!-- 启用webhdfs --&gt;<br />    &lt;property&gt;<br />        &lt;name&gt;dfs.webhdfs.enabled&lt;/name&gt;<br />        &lt;value&gt;true&lt;/value&gt;<br />    &lt;/property&gt;</p>
+<p> &lt;!--指定hdfs的nameservice为mycluster，需要和core-site.xml中的保持一致 <br />                          dfs.ha.namenodes.[nameservice id]为在nameservice中的每一个NameNode设置唯一标示符。 <br />        配置一个逗号分隔的NameNode ID列表。这将是被DataNode识别为所有的NameNode。 <br />        例如，如果使用"node1"作为nameservice ID，并且使用"nn1"和"nn2"作为NameNodes标示符 <br />    --&gt;</p>
+<p>&lt;property&gt;<br />&lt;name&gt;dfs.nameservices&lt;/name&gt;<br />&lt;value&gt;mycluster&lt;/value&gt;<br />&lt;/property&gt;</p>
+<p>&lt;!-- tuge1下面有一个NameNode，tuge2下面有一个NameNode，分别是nn1，nn2 --&gt;<br />&lt;property&gt;<br />&lt;name&gt;dfs.ha.namenodes.mycluster&lt;/name&gt;<br />&lt;value&gt;nn1,nn2&lt;/value&gt;<br />&lt;/property&gt;</p>
+<p>&lt;!-- nn1的RPC通信地址 --&gt;<br />&lt;property&gt;<br />&lt;name&gt;dfs.namenode.rpc-address.mycluster.nn1&lt;/name&gt;<br />&lt;value&gt;tuge1:9000&lt;/value&gt;<br />&lt;/property&gt;</p>
+<p>&lt;!-- nn1的http通信地址 --&gt;<br />&lt;property&gt;<br />&lt;name&gt;dfs.namenode.http-address.mycluster.nn1&lt;/name&gt;<br />&lt;value&gt;tuge1:50070&lt;/value&gt;<br />&lt;/property&gt;</p>
+<p>&lt;!-- nn2的RPC通信地址 --&gt;<br />&lt;property&gt;<br />&lt;name&gt;dfs.namenode.rpc-address.mycluster.nn2&lt;/name&gt;<br />&lt;value&gt;tuge2:9000&lt;/value&gt;<br />&lt;/property&gt;</p>
+<p>&lt;!-- nn2的http通信地址 --&gt;<br />&lt;property&gt;<br />&lt;name&gt;dfs.namenode.http-address.mycluster.nn2&lt;/name&gt;<br />&lt;value&gt;tuge2:50070&lt;/value&gt;<br />&lt;/property&gt;</p>
+<p>&lt;!-- 指定NameNode的edits元数据的共享存储位置。也就是JournalNode列表 <br />该url的配置格式：qjournal://host1:port1;host2:port2;host3:port3/journalId <br />journalId推荐使用nameservice，默认端口号是：8485 --&gt;<br />&lt;property&gt;<br />	&lt;name&gt;dfs.namenode.shared.edits.dir&lt;/name&gt;<br />	&lt;value&gt;qjournal://tuge2:8485;tuge3:8485;tuge4:8485/mycluster&lt;/value&gt;<br />&lt;/property&gt;</p>
+<p>&lt;!-- 指定JournalNode在本地磁盘存放数据的位置 --&gt;<br />&lt;property&gt;<br />	&lt;name&gt;dfs.journalnode.edits.dir&lt;/name&gt;<br />	&lt;value&gt;/opt/hadoop/hadoop-3.2.0/ha/jn&lt;/value&gt;<br />&lt;/property&gt;</p>
+<p>&lt;!-- 开启NameNode失败自动切换 --&gt;<br />&lt;property&gt;<br />	&lt;name&gt;dfs.ha.automatic-failover.enabled&lt;/name&gt;<br />	&lt;value&gt;true&lt;/value&gt;<br />&lt;/property&gt;</p>
+<p>&lt;!-- 确定处于Active的Node --&gt;<br />&lt;property&gt;<br />	&lt;name&gt;dfs.client.failover.proxy.provider.mycluster&lt;/name&gt;<br />	&lt;value&gt;org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider&lt;/value&gt;<br />&lt;/property&gt;<br />&lt;property&gt;<br />	&lt;name&gt;dfs.ha.fencing.methods&lt;/name&gt;<br />	&lt;value&gt;sshfence&lt;/value&gt;<br />&lt;/property&gt;<br />&lt;!-- 使用sshfence隔离机制时需要ssh免登陆 --&gt;<br />&lt;property&gt;<br />	&lt;name&gt;dfs.ha.fencing.ssh.private-key-files&lt;/name&gt;<br />	&lt;value&gt;/root/.ssh/id__dsa&lt;/value&gt;<br />&lt;/property&gt;<br />&lt;/configuration&gt;</p>
+<p>---------------------------------------------</p>
+<p>cd /opt/hadoop</p>
+<p>vim core.site.xml</p>
+<p>&nbsp;-----------------------------------------</p>
+<p>&lt;configuration&gt;<br />   &lt;property&gt;<br />    &lt;!-- 元数据文件存放位置，真正使用的时候会被加载到内容中  --&gt;<br />       &lt;name&gt;hadoop.tmp.dir&lt;/name&gt;<br />       &lt;value&gt;/opt/hadoop/hadoop-3.2.0/ha&lt;/value&gt;<br />   &lt;/property&gt;<br />   &lt;property&gt;<br />       &lt;name&gt;fs.defaultFS&lt;/name&gt;<br />       &lt;value&gt;hdfs://mycluster&lt;/value&gt;<br />   &lt;/property&gt;</p>
+<p>   &lt;property&gt;<br />      &lt;name&gt;ha.zookeeper.quorum&lt;/name&gt;<br />      &lt;value&gt;tuge1:2181,tuge2:2181,tuge3:2181,tuge4:2181&lt;/value&gt;<br />   &lt;/property&gt;<br />&lt;/configuration&gt;</p>
+<p>------------------------------------------</p>
+<p><span style="color: #993366;">PS：不要忘了，在一台机器上配置即可，然后分发到其它机器就行了</span></p>
+<p><span style="color: #333399;">2.2.4 指定DataNode在tuge3和tuge4上</span></p>
+<p>&nbsp;cd&nbsp;/opt/hadoop/hadoop-3.2.0/etc/hadoop</p>
+<p>&nbsp;在workers文件里面指定DataNode</p>
+<p>&nbsp;vim workers</p>
+<p>------------------------</p>
+<p>&nbsp;tuge3</p>
+<p>&nbsp;tuge4</p>
+<p>--------------------------</p>
+<p><span style="color: #993366;">PS:弄完了分发到其它机器即可</span>&nbsp;</p>
+<p><span style="color: #333399;">2.2.5 指定zookeeper在tuge1，tuge2，tuge3和tuge4上</span></p>
+<p>cd&nbsp;/opt/zookeeper/apache-zookeeper-3.5.5-bin/conf</p>
+<p>将zoo_sample.cfg复制一份重命名为zoo.cfg&nbsp;</p>
+<p>cp&nbsp;zoo_sample.cfg zoo.cfg</p>
+<p>vim zoo.cfg</p>
+<p>-------------------------------------</p>
+<p>dataDir=/opt/zookeeper/apache-zookeeper-3.5.5-bin/zkData</p>
+<p>server.1=tuge1:2888:3888<br />server.2=tuge2:2888:3888<br />server.3=tuge3:2888:3888<br />server.4=tuge4:2888:3888</p>
+<p>------------------------------------</p>
+<p><span style="color: #993366;">PS:弄完了，进行分发</span></p>
+<p><span style="color: #333399;">2.2.6 创建myid文件，指定每台机器的zookeeper ID</span></p>
+<p><span style="color: #000000;">cd&nbsp;/opt/zookeeper/apache-zookeeper-3.5.5-bin/</span></p>
+<p><span style="color: #000000;">mkdir&nbsp;zkData --其它服务器也相应创建下</span></p>
+<p><span style="color: #000000;">touch myid</span></p>
+<p><span style="color: #000000;">vim myid&nbsp; --如果是tuge1就写1，tuge2就写2</span></p>
+<p><span style="color: #000000;">---------------------------</span></p>
+<p><span style="color: #000000;">1&nbsp;&nbsp;</span></p>
+<p><span style="color: #000000;">---------------</span></p>
+<p>PS：分发myid到其它机器，并修改数字</p>
+<p><span style="color: #333399;">&nbsp;2.2.7 格式化NameNode</span></p>
+<p>在格式化之间，要先开启journalnode</p>
+<p>hdfs --daemon start journalnode</p>
+<p><span style="color: #ff0000;"><a href="https://blog.csdn.net/ViJayThresh/article/details/81284007" target="_blank">并且要关闭防火墙</a>：</span></p>
+<p><span style="color: #000000;">查看防火墙状态：&nbsp;systemctl status firewalld.service</span></p>
+<p>执行关闭命令：&nbsp;systemctl stop firewalld.service</p>
+<p>再次执行查看防火墙命令：systemctl status firewalld.service</p>
+<p>执行开机禁用防火墙自启命令&nbsp; ：&nbsp;systemctl disable firewalld.service</p>
+<p>做完以上步骤后在以下文件添加点内容：</p>
+<p>在start-dfs.sh和stop-dfs.sh文件里面添加</p>
+<p>---------------------------------------------</p>
+<pre><span style="font-size: 15px;"><code>HDFS_DATANODE_USER=root
+HADOOP_SECURE_DN_USER=hdfs 
+HDFS_NAMENODE_USER=root 
+HDFS_SECONDARYNAMENODE_USER=root<br />HDFS_JOURNALNODE_USER=root<br />HDFS_ZKFC_USER=root<br /><br />在$HADOOP_HOME/etc/hadoop/hadoop-env.sh下面添加<br /></code></span></pre>
+<pre><span style="font-size: 15px;"><code>export HDFS_NAMENODE_USER=root
+export HDFS_DATANODE_USER=root
+export HDFS_SECONDARYNAMENODE_USER=root
+export YARN_RESOURCEMANAGER_USER=root
+export YARN_NODEMANAGER_USER=root<br />export HDFS_JOURNALNODE_USER=root<br />export HDFS_ZKFC_USER=root<br />export JAVA_HOME=/opt/java/jdk1.8.0_221</code></span></pre>
+<p>-----------------------------------------------</p>
+<p>添加完后分发。</p>
+<p>然后选择任意一台NameNode开始格式化</p>
+<p>hdfs namenode -format</p>
+<p>格式化完成后，在另一台同步元数据</p>
+<p>hdfs namenode -bootstrapStandby</p>
+<p><span style="color: #333399;">2.2.8 格式化Zookeeper</span></p>
+<p>首先启动Zookeeper (下面两个命令tuge1，tuge2，tuge3，tuge4都执行一遍)</p>
+<p>cd&nbsp;/opt/zookeeper/apache-zookeeper-3.5.5-bin/bin</p>
+<p>./zkServer.sh start</p>
+<p>查看Zookeeper启动状态</p>
+<p>./zkServer.sh status</p>
+<p>使用<span style="color: #ff0000;">jps</span>查看所有java进程</p>
+<p>开始格式化</p>
+<p>hdfs zkfc -formatZK</p>
+<p>好了，经过无数采坑，按照上面步骤终于搭建完了，最终贴下效果图：</p>
+<p>运行命令：</p>
+<p>cd&nbsp;/opt/hadoop/hadoop-3.2.0/sbin</p>
+<p>./start-dfs.sh</p>
+<p>&nbsp;<img src="https://img2018.cnblogs.com/blog/1747187/201909/1747187-20190917102659707-530143377.png" alt="" /></p>
+<p>浏览效果：</p>
+<p><img src="https://img2018.cnblogs.com/blog/1747187/201909/1747187-20190917104224520-597045789.png" alt="" /></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;<img src="https://img2018.cnblogs.com/blog/1747187/201909/1747187-20190917104303871-1495958671.png" alt="" /></p>
+<p><a href="https://www.cnblogs.com/shun7man/p/11518083.html" target="_blank">系列传送门</a></p>
+<p>学习官网：&nbsp;<a href="http://hadoop.apache.org/" target="_blank">http://hadoop.apache.org/</a>&nbsp;</p>

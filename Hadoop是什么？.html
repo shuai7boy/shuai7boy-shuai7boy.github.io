@@ -1,0 +1,25 @@
+<p><span style="font-size: 15px;">简单概括：Hadoop是由Apache组织使用Java语言开发的一款应对大数据存储和计算的分布式开源框架。</span></p>
+<h2 id="wiz_toc_1">Hadoop的起源</h2>
+<p>2003-2004年，Google公布了部分GFS和MapReduce思想的细节，受此启发的Doug Cutting等人用2年的业余时间实现了DFS和MapReduce机制，使Nutch性能飙升。然后Yahoo招安Doug Gutting及其项目。&nbsp;<br />2005年，Hadoop作为Lucene的子项目Nutch的一部分正式引入Apache基金会。&nbsp;<br />2006年2月被分离出来，成为一套完整独立的软件，起名为Hadoop&nbsp;<br /><strong>Hadoop名字不是一个缩写，而是一个生造出来的词。是Hadoop之父Doug Cutting儿子毛绒玩具象命名的。</strong>&nbsp;<br />Hadoop的成长过程&nbsp;<br />Lucene&ndash;&gt;Nutch&mdash;&gt;Hadoop</p>
+<p>总结起来，Hadoop起源于Google的三大论文&nbsp;<br />GFS：Google的分布式文件系统Google File System&nbsp;<br />MapReduce：Google的MapReduce开源分布式并行计算框架&nbsp;<br />BigTable：一个大型的分布式数据库</p>
+<p><strong>演变关系</strong>&nbsp;<br />GFS&mdash;-&gt;HDFS&nbsp;<br />Google MapReduce&mdash;-&gt;Hadoop MapReduce&nbsp;<br />BigTable&mdash;-&gt;HBase</p>
+<h2 id="wiz_toc_2">Hadoop发展史</h2>
+<p><strong>Hadoop大事记</strong>&nbsp;<br />2004年&mdash; 最初的版本(现在称为HDFS和MapReduce)由Doug Cutting和Mike Cafarella开始实施。&nbsp;<br />2005年12月&mdash; Nutch移植到新的框架，Hadoop在20个节点上稳定运行。&nbsp;<br />2006年1月&mdash; Doug Cutting加入雅虎。&nbsp;<br />2006年2月&mdash; Apache Hadoop项目正式启动以支持MapReduce和HDFS的独立发展。&nbsp;<br />2006年2月&mdash; 雅虎的网格计算团队采用Hadoop。&nbsp;<br />2006年4月&mdash; 标准排序(10 GB每个节点)在188个节点上运行47.9个小时。&nbsp;<br />2006年5月&mdash; 雅虎建立了一个300个节点的Hadoop研究集群。&nbsp;<br />2006年5月&mdash; 标准排序在500个节点上运行42个小时(硬件配置比4月的更好)。&nbsp;<br />2006年11月&mdash; 研究集群增加到600个节点。&nbsp;<br />2006年12月&mdash; 标准排序在20个节点上运行1.8个小时，100个节点3.3小时，500个节点5.2小时，900个节点7.8个小时。&nbsp;<br />2007年1月&mdash; 研究集群到达900个节点。&nbsp;<br />2007年4月&mdash; 研究集群达到两个1000个节点的集群。&nbsp;<br />2008年4月&mdash; 赢得世界最快1TB数据排序在900个节点上用时209秒。&nbsp;<br />2008年7月&mdash; 雅虎测试节点增加到4000个&nbsp;<br />2008年9月&mdash;&nbsp;<span>Hive成为Hadoop的子项目</span>&nbsp;<br />2008年11月&mdash; Google宣布其MapReduce用68秒对1TB的程序进行排序&nbsp;<br />2008年10月&mdash; 研究集群每天装载10TB的数据。&nbsp;<br />2008年&mdash;&nbsp;<span>淘宝开始投入研究基于Hadoop的系统&ndash;云梯</span>。云梯总容量约9.3PB，共有1100台机器，每天处理18000道作业，扫描500TB数据。&nbsp;<br />2009年3月&mdash; 17个集群总共24 000台机器。&nbsp;<br />2009年3月&mdash;&nbsp;<span>Cloudera推出CDH（Cloudera&rsquo;s Dsitribution Including Apache Hadoop）</span>&nbsp;<br />2009年4月&mdash; 赢得每分钟排序，雅虎59秒内排序500 GB(在1400个节点上)和173分钟内排序100 TB数据(在3400个节点上)。&nbsp;<br />2009年5月&mdash; Yahoo的团队使用Hadoop对1 TB的数据进行排序只花了62秒时间。&nbsp;<br />2009年7月&mdash;&nbsp;<span>Hadoop Core项目更名为Hadoop Common;</span>&nbsp;<br />2009年7月&mdash;&nbsp;<span>MapReduce 和 Hadoop Distributed File System (HDFS) 成为Hadoop项目的独立子项目。</span>&nbsp;<br />2009年7月&mdash;&nbsp;<span>Avro 和 Chukwa 成为Hadoop新的子项目。</span>&nbsp;<br />2009年9月&mdash; 亚联BI团队开始跟踪研究Hadoop&nbsp;<br />2009年12月&mdash;亚联提出橘云战略，开始研究Hadoop&nbsp;<br />2010年5月&mdash; Avro脱离Hadoop项目，成为Apache顶级项目。&nbsp;<br />2010年5月&mdash; HBase脱离Hadoop项目，成为Apache顶级项目。&nbsp;<br />2010年5月&mdash; IBM提供了基于Hadoop 的大数据分析软件&mdash;&mdash;InfoSphere BigInsights，包括基础版和企业版。&nbsp;<br />2010年9月&mdash; Hive( Facebook) 脱离Hadoop，成为Apache顶级项目。&nbsp;<br />2010年9月&mdash; Pig脱离Hadoop，成为Apache顶级项目。&nbsp;<br />2011年1月&mdash;&nbsp;<span>ZooKeeper 脱离Hadoop，成为Apache顶级项目。</span>&nbsp;<br />2011年3月&mdash; Apache Hadoop获得Media Guardian Innovation Awards 。&nbsp;<br />2011年3月&mdash; Platform Computing 宣布在它的Symphony软件中支持Hadoop MapReduce API。&nbsp;<br />2011年5月&mdash; Mapr Technologies公司推出分布式文件系统和MapReduce引擎&mdash;&mdash;MapR Distribution for Apache Hadoop。&nbsp;<br />2011年5月&mdash; HCatalog 1.0发布。该项目由Hortonworks 在2010年3月份提出，HCatalog主要用于解决数据存储、元数据的问题，主要解决HDFS的瓶颈，它提供了一个地方来存储数据的状态信息，这使得 数据清理和归档工具可以很容易的进行处理。&nbsp;<br />2011年4月&mdash; SGI( Silicon Graphics International )基于SGI Rackable和CloudRack服务器产品线提供Hadoop优化的解决方案。&nbsp;<br />2011年5月&mdash; EMC为客户推出一种新的基于开源Hadoop解决方案的数据中心设备&mdash;&mdash;GreenPlum HD，以助其满足客户日益增长的数据分析需求并加快利用开源数据分析软件。Greenplum是EMC在2010年7月收购的一家开源数据仓库公司。&nbsp;<br />2011年5月&mdash; 在收购了Engenio之后， NetApp推出与Hadoop应用结合的产品E5400存储系统。&nbsp;<br />2011年6月&mdash; Calxeda公司(之前公司的名字是Smooth-Stone)发起了&ldquo;开拓者行动&rdquo;，一个由10家软件公司组成的团队将为基于Calxeda即将推出的ARM系统上芯片设计的服务器提供支持。并为Hadoop提供低功耗服务器技术。&nbsp;<br />2011年6月&mdash; 数据集成供应商Informatica发布了其旗舰产品，产品设计初衷是处理当今事务和社会媒体所产生的海量数据，同时支持Hadoop。&nbsp;<br />2011年7月&mdash; Yahoo!和硅谷风险投资公司 Benchmark Capital创建了Hortonworks 公司，旨在让Hadoop更加鲁棒(可靠)，并让企业用户更容易安装、管理和使用Hadoop。&nbsp;<br />2011年8月&mdash; Cloudera公布了一项有益于合作伙伴生态系统的计划&mdash;&mdash;创建一个生态系统，以便硬件供应商、软件供应商以及系统集成商可以一起探索如何使用Hadoop更好的洞察数据。&nbsp;<br />2011年8月&mdash; Dell与Cloudera联合推出Hadoop解决方案&mdash;&mdash;Cloudera Enterprise。Cloudera Enterprise基于Dell PowerEdge C2100机架服务器以及Dell PowerConnect 6248以太网交换机</p>
+<h2 id="wiz_toc_3">Hadoop的四大特性（优点）</h2>
+<ol><ol>
+<li>扩容能力（Scalable）：Hadoop是在可用的计算机集群间分配数据并完成计算任务的，这些集群可用方便的扩展到数以千计个节点中。</li>
+<li>成本低（Economical）：Hadoop通过普通廉价的机器组成服务器集群来分发以及处理数据，以至于成本很低。</li>
+<li>高效率（Efficient）：通过并发数据，Hadoop可以在节点之间动态并行的移动数据，使得速度非常快。</li>
+<li>可靠性（Rellable）：能自动维护数据的多份复制，并且在任务失败后能自动地重新部署（redeploy）计算任务。所以Hadoop的按位存储和处理数据的能力值得人们信赖。&nbsp; &nbsp;<a href="https://www.cnblogs.com/shun7man/p/11518083.html" target="_blank">系列传送门</a>&nbsp; &nbsp;&nbsp;学习官网：&nbsp;<a href="http://hadoop.apache.org/" target="_blank">http://hadoop.apache.org/</a></li>
+
+
+
+
+
+
+
+
+
+
+
+</ol></ol>

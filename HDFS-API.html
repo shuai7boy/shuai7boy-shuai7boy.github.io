@@ -1,0 +1,33 @@
+<p>第一步：创建一个新的项目 并导入需要的jar包</p>
+<p>公共核心包</p>
+<p>&nbsp;<img src="https://img2018.cnblogs.com/blog/1747187/201910/1747187-20191029160433301-1280521424.png" alt="" /></p>
+<p>公共依赖包</p>
+<p>&nbsp;<img src="https://img2018.cnblogs.com/blog/1747187/201910/1747187-20191029160459020-1655749822.png" alt="" /></p>
+<p>hdfs核心包</p>
+<p>&nbsp;<img src="https://img2018.cnblogs.com/blog/1747187/201910/1747187-20191029160527254-870530610.png" alt="" /></p>
+<p>hdfs依赖包</p>
+<p>&nbsp;<img src="https://img2018.cnblogs.com/blog/1747187/201910/1747187-20191029160549203-2013524764.png" alt="" /></p>
+<p>第二步：将Linux中hadoop的配置文件拷贝到项目的src目录下</p>
+<p>&nbsp;<img src="https://img2018.cnblogs.com/blog/1747187/201910/1747187-20191029160605802-1397524994.png" alt="" /></p>
+<p>第三步：配置windows本地的hadoop环境变量（HADOOP_HOME：hadoop的安装目录 Path：在后面添加hadoop下的bin目录）</p>
+<p>第四步：使用windows下编译好的hadoop替换hadoop的bin目录和lib目录</p>
+<p>第五步：使用FileSystem对象对hdfs进行操作（注意：FileSystem默认是本地文件系统 因此要通过Configuration对象配置为hdfs系统）</p>
+<p>&nbsp;<img src="https://img2018.cnblogs.com/blog/1747187/201910/1747187-20191029160629782-1248563154.png" alt="" /></p>
+<p>第六步：在运行之前 需要保证本地的用户名和hadoop的用户名一致 在不修改windows用户名的情况下 可以配置Eclipse的参数实现：右击项目-&gt;Run As -&gt;Run Configurations</p>
+<p>&nbsp;<img src="https://img2018.cnblogs.com/blog/1747187/201910/1747187-20191029160649689-827340741.png" alt="" /></p>
+<p>运行即可成功上传本地文件到hdfs<br /><br /></p>
+<p>代码如下：</p>
+<p>package com.xjtuse;</p>
+<p>import java.net.URI;<br />import org.apache.hadoop.conf.Configuration;<br />import org.apache.hadoop.fs.FileSystem;<br />import org.apache.hadoop.fs.Path;<br />import org.junit.Before;<br />import org.junit.Test;</p>
+<p>public class HdfsDemo {<br />FileSystem fs = null;<br />@Before<br />// 初始化HDFS<br />public void init() throws Exception<br />{<br />// 配置文件 默认加载src下的配置文件<br />Configuration conf = new Configuration();<br />//	conf.set("fs.defaultFS", "hdfs://master:9000");<br />&nbsp; &nbsp; // 生成一个文件系统客户端操作对象<br />//	&nbsp; &nbsp; fs = FileSystem.get(conf);	<br />// 第一个参数是URI指明了是hdfs文件系统 第二个参数是配置文件 第三个参数是指定用户名 需要与hadoop用户名保持一致<br />fs = FileSystem.get(new URI("hdfs://master:9000"), conf, "root");<br />}</p>
+<p>@Test<br />// 创建新的文件夹<br />public void mkdir() throws Exception<br />{<br />Path path = new Path("/hello");<br />fs.mkdirs(path);<br />// 关闭<br />fs.close();<br />}</p>
+<p>@Test<br />// 上传文件<br />public void upload() throws Exception<br />{<br />// 第一个参数是本地windows下的文件路径 第二个参数是hdfs的文件路径<br />fs.copyFromLocalFile(new Path("F:/Files/data/README.txt"), new Path("/"));<br />// 关闭<br />fs.close();</p>
+<p>}<br />}</p>
+<p>转自:&nbsp;<a href="https://blog.csdn.net/hll19950830/article/details/79824928" target="_blank">https://blog.csdn.net/hll19950830/article/details/79824928</a></p>
+<p>补充：最后我们运行可能报如下异常。</p>
+<p>&nbsp;<img src="https://img2018.cnblogs.com/blog/1747187/201910/1747187-20191029162543521-1323684073.png" alt="" /></p>
+<p>&nbsp;</p>
+<p>&nbsp;这个时候在项目根目录下创建一个文件命名为log4j.properties并填写如下内容，然后重新运行就好了。</p>
+<p>&nbsp;hadoop.root.logger=DEBUG, console<br />&nbsp;log4j.rootLogger = DEBUG, console<br />&nbsp;log4j.appender.console=org.apache.log4j.ConsoleAppender<br />&nbsp;log4j.appender.console.target=System.out<br />&nbsp;log4j.appender.console.layout=org.apache.log4j.PatternLayout<br />&nbsp;log4j.appender.console.layout.ConversionPattern=%d{yy/MM/dd HH:mm:ss} %p %c{2}: %m%n</p>
+<p>有的时候我们新建文件的时候选择File-&gt;New没有选择文件这个选项，这个时候不用着急，它给隐藏了，找到Window-&gt;Perspective-&gt;Customize Perspective 勾选上File即可。</p>
+<p><a href="https://www.cnblogs.com/shun7man/p/11518083.html" target="_blank">系列传送门</a></p>

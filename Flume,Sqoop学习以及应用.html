@@ -1,0 +1,385 @@
+<!doctype html>
+<html>
+<head>
+<meta charset='UTF-8'><meta name='viewport' content='width=device-width initial-scale=1'>
+<title>Flume,Sqoop学习以及应用</title><link href='https://fonts.loli.net/css?family=Open+Sans:400italic,700italic,700,400&subset=latin,latin-ext' rel='stylesheet' type='text/css' /><style type='text/css'>html {overflow-x: initial !important;}:root { --bg-color:#ffffff; --text-color:#333333; --select-text-bg-color:#B5D6FC; --select-text-font-color:auto; --monospace:"Lucida Console",Consolas,"Courier",monospace; }
+html { font-size: 14px; background-color: var(--bg-color); color: var(--text-color); font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+body { margin: 0px; padding: 0px; height: auto; bottom: 0px; top: 0px; left: 0px; right: 0px; font-size: 1rem; line-height: 1.42857; overflow-x: hidden; background: inherit; tab-size: 4; }
+iframe { margin: auto; }
+a.url { word-break: break-all; }
+a:active, a:hover { outline: 0px; }
+.in-text-selection, ::selection { text-shadow: none; background: var(--select-text-bg-color); color: var(--select-text-font-color); }
+#write { margin: 0px auto; height: auto; width: inherit; word-break: normal; overflow-wrap: break-word; position: relative; white-space: normal; overflow-x: visible; padding-top: 40px; }
+#write.first-line-indent p { text-indent: 2em; }
+#write.first-line-indent li p, #write.first-line-indent p * { text-indent: 0px; }
+#write.first-line-indent li { margin-left: 2em; }
+.for-image #write { padding-left: 8px; padding-right: 8px; }
+body.typora-export { padding-left: 30px; padding-right: 30px; }
+.typora-export .footnote-line, .typora-export li, .typora-export p { white-space: pre-wrap; }
+@media screen and (max-width: 500px) {
+  body.typora-export { padding-left: 0px; padding-right: 0px; }
+  #write { padding-left: 20px; padding-right: 20px; }
+  .CodeMirror-sizer { margin-left: 0px !important; }
+  .CodeMirror-gutters { display: none !important; }
+}
+#write li > figure:last-child { margin-bottom: 0.5rem; }
+#write ol, #write ul { position: relative; }
+img { max-width: 100%; vertical-align: middle; }
+button, input, select, textarea { color: inherit; font: inherit; }
+input[type="checkbox"], input[type="radio"] { line-height: normal; padding: 0px; }
+*, ::after, ::before { box-sizing: border-box; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p, #write pre { width: inherit; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p { position: relative; }
+p { line-height: inherit; }
+h1, h2, h3, h4, h5, h6 { break-after: avoid-page; break-inside: avoid; orphans: 2; }
+p { orphans: 4; }
+h1 { font-size: 2rem; }
+h2 { font-size: 1.8rem; }
+h3 { font-size: 1.6rem; }
+h4 { font-size: 1.4rem; }
+h5 { font-size: 1.2rem; }
+h6 { font-size: 1rem; }
+.md-math-block, .md-rawblock, h1, h2, h3, h4, h5, h6, p { margin-top: 1rem; margin-bottom: 1rem; }
+.hidden { display: none; }
+.md-blockmeta { color: rgb(204, 204, 204); font-weight: 700; font-style: italic; }
+a { cursor: pointer; }
+sup.md-footnote { padding: 2px 4px; background-color: rgba(238, 238, 238, 0.7); color: rgb(85, 85, 85); border-radius: 4px; cursor: pointer; }
+sup.md-footnote a, sup.md-footnote a:hover { color: inherit; text-transform: inherit; text-decoration: inherit; }
+#write input[type="checkbox"] { cursor: pointer; width: inherit; height: inherit; }
+figure { overflow-x: auto; margin: 1.2em 0px; max-width: calc(100% + 16px); padding: 0px; }
+figure > table { margin: 0px !important; }
+tr { break-inside: avoid; break-after: auto; }
+thead { display: table-header-group; }
+table { border-collapse: collapse; border-spacing: 0px; width: 100%; overflow: auto; break-inside: auto; text-align: left; }
+table.md-table td { min-width: 32px; }
+.CodeMirror-gutters { border-right: 0px; background-color: inherit; }
+.CodeMirror-linenumber { user-select: none; }
+.CodeMirror { text-align: left; }
+.CodeMirror-placeholder { opacity: 0.3; }
+.CodeMirror pre { padding: 0px 4px; }
+.CodeMirror-lines { padding: 0px; }
+div.hr:focus { cursor: none; }
+#write pre { white-space: pre-wrap; }
+#write.fences-no-line-wrapping pre { white-space: pre; }
+#write pre.ty-contain-cm { white-space: normal; }
+.CodeMirror-gutters { margin-right: 4px; }
+.md-fences { font-size: 0.9rem; display: block; break-inside: avoid; text-align: left; overflow: visible; white-space: pre; background: inherit; position: relative !important; }
+.md-diagram-panel { width: 100%; margin-top: 10px; text-align: center; padding-top: 0px; padding-bottom: 8px; overflow-x: auto; }
+#write .md-fences.mock-cm { white-space: pre-wrap; }
+.md-fences.md-fences-with-lineno { padding-left: 0px; }
+#write.fences-no-line-wrapping .md-fences.mock-cm { white-space: pre; overflow-x: auto; }
+.md-fences.mock-cm.md-fences-with-lineno { padding-left: 8px; }
+.CodeMirror-line, twitterwidget { break-inside: avoid; }
+.footnotes { opacity: 0.8; font-size: 0.9rem; margin-top: 1em; margin-bottom: 1em; }
+.footnotes + .footnotes { margin-top: 0px; }
+.md-reset { margin: 0px; padding: 0px; border: 0px; outline: 0px; vertical-align: top; background: 0px 0px; text-decoration: none; text-shadow: none; float: none; position: static; width: auto; height: auto; white-space: nowrap; cursor: inherit; -webkit-tap-highlight-color: transparent; line-height: normal; font-weight: 400; text-align: left; box-sizing: content-box; direction: ltr; }
+li div { padding-top: 0px; }
+blockquote { margin: 1rem 0px; }
+li .mathjax-block, li p { margin: 0.5rem 0px; }
+li { margin: 0px; position: relative; }
+blockquote > :last-child { margin-bottom: 0px; }
+blockquote > :first-child, li > :first-child { margin-top: 0px; }
+.footnotes-area { color: rgb(136, 136, 136); margin-top: 0.714rem; padding-bottom: 0.143rem; white-space: normal; }
+#write .footnote-line { white-space: pre-wrap; }
+@media print {
+  body, html { border: 1px solid transparent; height: 99%; break-after: avoid; break-before: avoid; }
+  #write { margin-top: 0px; padding-top: 0px; border-color: transparent !important; }
+  .typora-export * { -webkit-print-color-adjust: exact; }
+  html.blink-to-pdf { font-size: 13px; }
+  .typora-export #write { padding-left: 32px; padding-right: 32px; padding-bottom: 0px; break-after: avoid; }
+  .typora-export #write::after { height: 0px; }
+}
+.footnote-line { margin-top: 0.714em; font-size: 0.7em; }
+a img, img a { cursor: pointer; }
+pre.md-meta-block { font-size: 0.8rem; min-height: 0.8rem; white-space: pre-wrap; background: rgb(204, 204, 204); display: block; overflow-x: hidden; }
+p > .md-image:only-child:not(.md-img-error) img, p > img:only-child { display: block; margin: auto; }
+p > .md-image:only-child { display: inline-block; width: 100%; }
+#write .MathJax_Display { margin: 0.8em 0px 0px; }
+.md-math-block { width: 100%; }
+.md-math-block:not(:empty)::after { display: none; }
+[contenteditable="true"]:active, [contenteditable="true"]:focus { outline: 0px; box-shadow: none; }
+.md-task-list-item { position: relative; list-style-type: none; }
+.task-list-item.md-task-list-item { padding-left: 0px; }
+.md-task-list-item > input { position: absolute; top: 0px; left: 0px; margin-left: -1.2em; margin-top: calc(1em - 10px); border: none; }
+.math { font-size: 1rem; }
+.md-toc { min-height: 3.58rem; position: relative; font-size: 0.9rem; border-radius: 10px; }
+.md-toc-content { position: relative; margin-left: 0px; }
+.md-toc-content::after, .md-toc::after { display: none; }
+.md-toc-item { display: block; color: rgb(65, 131, 196); }
+.md-toc-item a { text-decoration: none; }
+.md-toc-inner:hover { text-decoration: underline; }
+.md-toc-inner { display: inline-block; cursor: pointer; }
+.md-toc-h1 .md-toc-inner { margin-left: 0px; font-weight: 700; }
+.md-toc-h2 .md-toc-inner { margin-left: 2em; }
+.md-toc-h3 .md-toc-inner { margin-left: 4em; }
+.md-toc-h4 .md-toc-inner { margin-left: 6em; }
+.md-toc-h5 .md-toc-inner { margin-left: 8em; }
+.md-toc-h6 .md-toc-inner { margin-left: 10em; }
+@media screen and (max-width: 48em) {
+  .md-toc-h3 .md-toc-inner { margin-left: 3.5em; }
+  .md-toc-h4 .md-toc-inner { margin-left: 5em; }
+  .md-toc-h5 .md-toc-inner { margin-left: 6.5em; }
+  .md-toc-h6 .md-toc-inner { margin-left: 8em; }
+}
+a.md-toc-inner { font-size: inherit; font-style: inherit; font-weight: inherit; line-height: inherit; }
+.footnote-line a:not(.reversefootnote) { color: inherit; }
+.md-attr { display: none; }
+.md-fn-count::after { content: "."; }
+code, pre, samp, tt { font-family: var(--monospace); }
+kbd { margin: 0px 0.1em; padding: 0.1em 0.6em; font-size: 0.8em; color: rgb(36, 39, 41); background: rgb(255, 255, 255); border: 1px solid rgb(173, 179, 185); border-radius: 3px; box-shadow: rgba(12, 13, 14, 0.2) 0px 1px 0px, rgb(255, 255, 255) 0px 0px 0px 2px inset; white-space: nowrap; vertical-align: middle; }
+.md-comment { color: rgb(162, 127, 3); opacity: 0.8; font-family: var(--monospace); }
+code { text-align: left; vertical-align: initial; }
+a.md-print-anchor { white-space: pre !important; border-width: initial !important; border-style: none !important; border-color: initial !important; display: inline-block !important; position: absolute !important; width: 1px !important; right: 0px !important; outline: 0px !important; background: 0px 0px !important; text-decoration: initial !important; text-shadow: initial !important; }
+.md-inline-math .MathJax_SVG .noError { display: none !important; }
+.html-for-mac .inline-math-svg .MathJax_SVG { vertical-align: 0.2px; }
+.md-math-block .MathJax_SVG_Display { text-align: center; margin: 0px; position: relative; text-indent: 0px; max-width: none; max-height: none; min-height: 0px; min-width: 100%; width: auto; overflow-y: hidden; display: block !important; }
+.MathJax_SVG_Display, .md-inline-math .MathJax_SVG_Display { width: auto; margin: inherit; display: inline-block !important; }
+.MathJax_SVG .MJX-monospace { font-family: var(--monospace); }
+.MathJax_SVG .MJX-sans-serif { font-family: sans-serif; }
+.MathJax_SVG { display: inline; font-style: normal; font-weight: 400; line-height: normal; zoom: 90%; text-indent: 0px; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; overflow-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0px; min-height: 0px; border: 0px; padding: 0px; margin: 0px; }
+.MathJax_SVG * { transition: none 0s ease 0s; }
+.MathJax_SVG_Display svg { vertical-align: middle !important; margin-bottom: 0px !important; margin-top: 0px !important; }
+.os-windows.monocolor-emoji .md-emoji { font-family: "Segoe UI Symbol", sans-serif; }
+.md-diagram-panel > svg { max-width: 100%; }
+[lang="mermaid"] svg, [lang="flow"] svg { max-width: 100%; height: auto; }
+[lang="mermaid"] .node text { font-size: 1rem; }
+table tr th { border-bottom: 0px; }
+video { max-width: 100%; display: block; margin: 0px auto; }
+iframe { max-width: 100%; width: 100%; border: none; }
+.highlight td, .highlight tr { border: 0px; }
+
+
+.CodeMirror { height: auto; }
+.CodeMirror.cm-s-inner { background: inherit; }
+.CodeMirror-scroll { overflow: auto hidden; z-index: 3; }
+.CodeMirror-gutter-filler, .CodeMirror-scrollbar-filler { background-color: rgb(255, 255, 255); }
+.CodeMirror-gutters { border-right: 1px solid rgb(221, 221, 221); background: inherit; white-space: nowrap; }
+.CodeMirror-linenumber { padding: 0px 3px 0px 5px; text-align: right; color: rgb(153, 153, 153); }
+.cm-s-inner .cm-keyword { color: rgb(119, 0, 136); }
+.cm-s-inner .cm-atom, .cm-s-inner.cm-atom { color: rgb(34, 17, 153); }
+.cm-s-inner .cm-number { color: rgb(17, 102, 68); }
+.cm-s-inner .cm-def { color: rgb(0, 0, 255); }
+.cm-s-inner .cm-variable { color: rgb(0, 0, 0); }
+.cm-s-inner .cm-variable-2 { color: rgb(0, 85, 170); }
+.cm-s-inner .cm-variable-3 { color: rgb(0, 136, 85); }
+.cm-s-inner .cm-string { color: rgb(170, 17, 17); }
+.cm-s-inner .cm-property { color: rgb(0, 0, 0); }
+.cm-s-inner .cm-operator { color: rgb(152, 26, 26); }
+.cm-s-inner .cm-comment, .cm-s-inner.cm-comment { color: rgb(170, 85, 0); }
+.cm-s-inner .cm-string-2 { color: rgb(255, 85, 0); }
+.cm-s-inner .cm-meta { color: rgb(85, 85, 85); }
+.cm-s-inner .cm-qualifier { color: rgb(85, 85, 85); }
+.cm-s-inner .cm-builtin { color: rgb(51, 0, 170); }
+.cm-s-inner .cm-bracket { color: rgb(153, 153, 119); }
+.cm-s-inner .cm-tag { color: rgb(17, 119, 0); }
+.cm-s-inner .cm-attribute { color: rgb(0, 0, 204); }
+.cm-s-inner .cm-header, .cm-s-inner.cm-header { color: rgb(0, 0, 255); }
+.cm-s-inner .cm-quote, .cm-s-inner.cm-quote { color: rgb(0, 153, 0); }
+.cm-s-inner .cm-hr, .cm-s-inner.cm-hr { color: rgb(153, 153, 153); }
+.cm-s-inner .cm-link, .cm-s-inner.cm-link { color: rgb(0, 0, 204); }
+.cm-negative { color: rgb(221, 68, 68); }
+.cm-positive { color: rgb(34, 153, 34); }
+.cm-header, .cm-strong { font-weight: 700; }
+.cm-del { text-decoration: line-through; }
+.cm-em { font-style: italic; }
+.cm-link { text-decoration: underline; }
+.cm-error { color: red; }
+.cm-invalidchar { color: red; }
+.cm-constant { color: rgb(38, 139, 210); }
+.cm-defined { color: rgb(181, 137, 0); }
+div.CodeMirror span.CodeMirror-matchingbracket { color: rgb(0, 255, 0); }
+div.CodeMirror span.CodeMirror-nonmatchingbracket { color: rgb(255, 34, 34); }
+.cm-s-inner .CodeMirror-activeline-background { background: inherit; }
+.CodeMirror { position: relative; overflow: hidden; }
+.CodeMirror-scroll { height: 100%; outline: 0px; position: relative; box-sizing: content-box; background: inherit; }
+.CodeMirror-sizer { position: relative; }
+.CodeMirror-gutter-filler, .CodeMirror-hscrollbar, .CodeMirror-scrollbar-filler, .CodeMirror-vscrollbar { position: absolute; z-index: 6; display: none; }
+.CodeMirror-vscrollbar { right: 0px; top: 0px; overflow: hidden; }
+.CodeMirror-hscrollbar { bottom: 0px; left: 0px; overflow: hidden; }
+.CodeMirror-scrollbar-filler { right: 0px; bottom: 0px; }
+.CodeMirror-gutter-filler { left: 0px; bottom: 0px; }
+.CodeMirror-gutters { position: absolute; left: 0px; top: 0px; padding-bottom: 30px; z-index: 3; }
+.CodeMirror-gutter { white-space: normal; height: 100%; box-sizing: content-box; padding-bottom: 30px; margin-bottom: -32px; display: inline-block; }
+.CodeMirror-gutter-wrapper { position: absolute; z-index: 4; background: 0px 0px !important; border: none !important; }
+.CodeMirror-gutter-background { position: absolute; top: 0px; bottom: 0px; z-index: 4; }
+.CodeMirror-gutter-elt { position: absolute; cursor: default; z-index: 4; }
+.CodeMirror-lines { cursor: text; }
+.CodeMirror pre { border-radius: 0px; border-width: 0px; background: 0px 0px; font-family: inherit; font-size: inherit; margin: 0px; white-space: pre; overflow-wrap: normal; color: inherit; z-index: 2; position: relative; overflow: visible; }
+.CodeMirror-wrap pre { overflow-wrap: break-word; white-space: pre-wrap; word-break: normal; }
+.CodeMirror-code pre { border-right: 30px solid transparent; width: fit-content; }
+.CodeMirror-wrap .CodeMirror-code pre { border-right: none; width: auto; }
+.CodeMirror-linebackground { position: absolute; left: 0px; right: 0px; top: 0px; bottom: 0px; z-index: 0; }
+.CodeMirror-linewidget { position: relative; z-index: 2; overflow: auto; }
+.CodeMirror-wrap .CodeMirror-scroll { overflow-x: hidden; }
+.CodeMirror-measure { position: absolute; width: 100%; height: 0px; overflow: hidden; visibility: hidden; }
+.CodeMirror-measure pre { position: static; }
+.CodeMirror div.CodeMirror-cursor { position: absolute; visibility: hidden; border-right: none; width: 0px; }
+.CodeMirror div.CodeMirror-cursor { visibility: hidden; }
+.CodeMirror-focused div.CodeMirror-cursor { visibility: inherit; }
+.cm-searching { background: rgba(255, 255, 0, 0.4); }
+@media print {
+  .CodeMirror div.CodeMirror-cursor { visibility: hidden; }
+}
+
+
+:root { --side-bar-bg-color: #fafafa; --control-text-color: #777; }
+html { font-size: 16px; }
+body { font-family: "Open Sans", "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif; color: rgb(51, 51, 51); line-height: 1.6; }
+#write { max-width: 860px; margin: 0px auto; padding: 30px 30px 100px; }
+#write > ul:first-child, #write > ol:first-child { margin-top: 30px; }
+a { color: rgb(65, 131, 196); }
+h1, h2, h3, h4, h5, h6 { position: relative; margin-top: 1rem; margin-bottom: 1rem; font-weight: bold; line-height: 1.4; cursor: text; }
+h1:hover a.anchor, h2:hover a.anchor, h3:hover a.anchor, h4:hover a.anchor, h5:hover a.anchor, h6:hover a.anchor { text-decoration: none; }
+h1 tt, h1 code { font-size: inherit; }
+h2 tt, h2 code { font-size: inherit; }
+h3 tt, h3 code { font-size: inherit; }
+h4 tt, h4 code { font-size: inherit; }
+h5 tt, h5 code { font-size: inherit; }
+h6 tt, h6 code { font-size: inherit; }
+h1 { padding-bottom: 0.3em; font-size: 2.25em; line-height: 1.2; border-bottom: 1px solid rgb(238, 238, 238); }
+h2 { padding-bottom: 0.3em; font-size: 1.75em; line-height: 1.225; border-bottom: 1px solid rgb(238, 238, 238); }
+h3 { font-size: 1.5em; line-height: 1.43; }
+h4 { font-size: 1.25em; }
+h5 { font-size: 1em; }
+h6 { font-size: 1em; color: rgb(119, 119, 119); }
+p, blockquote, ul, ol, dl, table { margin: 0.8em 0px; }
+li > ol, li > ul { margin: 0px; }
+hr { height: 2px; padding: 0px; margin: 16px 0px; background-color: rgb(231, 231, 231); border: 0px none; overflow: hidden; box-sizing: content-box; }
+li p.first { display: inline-block; }
+ul, ol { padding-left: 30px; }
+ul:first-child, ol:first-child { margin-top: 0px; }
+ul:last-child, ol:last-child { margin-bottom: 0px; }
+blockquote { border-left: 4px solid rgb(223, 226, 229); padding: 0px 15px; color: rgb(119, 119, 119); }
+blockquote blockquote { padding-right: 0px; }
+table { padding: 0px; word-break: initial; }
+table tr { border-top: 1px solid rgb(223, 226, 229); margin: 0px; padding: 0px; }
+table tr:nth-child(2n), thead { background-color: rgb(248, 248, 248); }
+table tr th { font-weight: bold; border-width: 1px 1px 0px; border-top-style: solid; border-right-style: solid; border-left-style: solid; border-top-color: rgb(223, 226, 229); border-right-color: rgb(223, 226, 229); border-left-color: rgb(223, 226, 229); border-image: initial; border-bottom-style: initial; border-bottom-color: initial; margin: 0px; padding: 6px 13px; }
+table tr td { border: 1px solid rgb(223, 226, 229); margin: 0px; padding: 6px 13px; }
+table tr th:first-child, table tr td:first-child { margin-top: 0px; }
+table tr th:last-child, table tr td:last-child { margin-bottom: 0px; }
+.CodeMirror-lines { padding-left: 4px; }
+.code-tooltip { box-shadow: rgba(0, 28, 36, 0.3) 0px 1px 1px 0px; border-top: 1px solid rgb(238, 242, 242); }
+.md-fences, code, tt { border: 1px solid rgb(231, 234, 237); background-color: rgb(248, 248, 248); border-radius: 3px; padding: 2px 4px 0px; font-size: 0.9em; }
+code { background-color: rgb(243, 244, 244); padding: 0px 2px; }
+.md-fences { margin-bottom: 15px; margin-top: 15px; padding-top: 8px; padding-bottom: 6px; }
+.md-task-list-item > input { margin-left: -1.3em; }
+@media print {
+  html { font-size: 13px; }
+  table, pre { break-inside: avoid; }
+  pre { overflow-wrap: break-word; }
+}
+.md-fences { background-color: rgb(248, 248, 248); }
+#write pre.md-meta-block { padding: 1rem; font-size: 85%; line-height: 1.45; background-color: rgb(247, 247, 247); border: 0px; border-radius: 3px; color: rgb(119, 119, 119); margin-top: 0px !important; }
+.mathjax-block > .code-tooltip { bottom: 0.375rem; }
+.md-mathjax-midline { background: rgb(250, 250, 250); }
+#write > h3.md-focus::before { left: -1.5625rem; top: 0.375rem; }
+#write > h4.md-focus::before { left: -1.5625rem; top: 0.285714rem; }
+#write > h5.md-focus::before { left: -1.5625rem; top: 0.285714rem; }
+#write > h6.md-focus::before { left: -1.5625rem; top: 0.285714rem; }
+.md-image > .md-meta { border-radius: 3px; padding: 2px 0px 0px 4px; font-size: 0.9em; color: inherit; }
+.md-tag { color: rgb(167, 167, 167); opacity: 1; }
+.md-toc { margin-top: 20px; padding-bottom: 20px; }
+.sidebar-tabs { border-bottom: none; }
+#typora-quick-open { border: 1px solid rgb(221, 221, 221); background-color: rgb(248, 248, 248); }
+#typora-quick-open-item { background-color: rgb(250, 250, 250); border-color: rgb(254, 254, 254) rgb(229, 229, 229) rgb(229, 229, 229) rgb(238, 238, 238); border-style: solid; border-width: 1px; }
+.on-focus-mode blockquote { border-left-color: rgba(85, 85, 85, 0.12); }
+header, .context-menu, .megamenu-content, footer { font-family: "Segoe UI", Arial, sans-serif; }
+.file-node-content:hover .file-node-icon, .file-node-content:hover .file-node-open-state { visibility: visible; }
+.mac-seamless-mode #typora-sidebar { background-color: var(--side-bar-bg-color); }
+.md-lang { color: rgb(180, 101, 77); }
+.html-for-mac .context-menu { --item-hover-bg-color: #E6F0FE; }
+#md-notification .btn { border: 0px; }
+.dropdown-menu .divider { border-color: rgb(229, 229, 229); }
+.ty-preferences .window-content { background-color: rgb(250, 250, 250); }
+.ty-preferences .nav-group-item.active { color: white; background: rgb(153, 153, 153); }
+
+
+</style>
+</head>
+<body class='typora-export os-windows' >
+<div  id='write'  class = 'is-node'><div class='md-toc' mdtype='toc'><p class="md-toc-content"><span class="md-toc-item md-toc-h2" data-ref="n4"><a class="md-toc-inner" href="#1flume是什么">1.Flume是什么?</a></span><span class="md-toc-item md-toc-h2" data-ref="n6"><a class="md-toc-inner" href="#2flume如何搭建">2.Flume如何搭建</a></span><span class="md-toc-item md-toc-h4" data-ref="n8"><a class="md-toc-inner" href="#21下载并解压到指定目录">2.1下载并解压到指定目录</a></span><span class="md-toc-item md-toc-h4" data-ref="n12"><a class="md-toc-inner" href="#22在flume-envsh里面配置java路径">2.2在flume-env.sh里面配置Java路径</a></span><span class="md-toc-item md-toc-h4" data-ref="n18"><a class="md-toc-inner" href="#23添加flume环境变量">2.3添加Flume环境变量</a></span><span class="md-toc-item md-toc-h4" data-ref="n27"><a class="md-toc-inner" href="#24通过flume-ng-version验证是否配置成功">2.4通过flume-ng version验证是否配置成功</a></span><span class="md-toc-item md-toc-h2" data-ref="n30"><a class="md-toc-inner" href="#3flume应用">3.Flume应用</a></span><span class="md-toc-item md-toc-h4" data-ref="n33"><a class="md-toc-inner" href="#31配置nginx环境">3.1配置nginx环境</a></span><span class="md-toc-item md-toc-h4" data-ref="n49"><a class="md-toc-inner" href="#32编写触发事件传输代码">3.2编写触发事件传输代码</a></span><span class="md-toc-item md-toc-h4" data-ref="n57"><a class="md-toc-inner" href="#33运行flume将本地日志写入hdfs">3.3运行Flume，将本地日志写入HDFS</a></span><span class="md-toc-item md-toc-h4" data-ref="n70"><a class="md-toc-inner" href="#34编写etl代码将hdfs内容导入到hbase里面">3.4编写ETL代码，将HDFS内容导入到HBase里面</a></span><span class="md-toc-item md-toc-h4" data-ref="n76"><a class="md-toc-inner" href="#35使用mapreduce将hbase数据分析处理后导入到mysql">3.5使用Map/Reduce将HBase数据分析处理后导入到MySql</a></span><span class="md-toc-item md-toc-h2" data-ref="n113"><a class="md-toc-inner" href="#4sqoop是什么">4.Sqoop是什么？</a></span><span class="md-toc-item md-toc-h2" data-ref="n116"><a class="md-toc-inner" href="#5使用sqoop将hbase数据计算并导入mysql">5.使用Sqoop将HBase数据计算并导入MySql</a></span><span class="md-toc-item md-toc-h4" data-ref="n117"><a class="md-toc-inner" href="#50安装sqoop">5.0安装Sqoop</a></span><span class="md-toc-item md-toc-h4" data-ref="n134"><a class="md-toc-inner" href="#51在hive里面创建数据表进行存数据">5.1在Hive里面创建数据表进行存数据</a></span><span class="md-toc-item md-toc-h6" data-ref="n136"><a class="md-toc-inner" href="#510在hive中创建hbase的eventlog对应表并进行hive表和hbase表关联">5.1.0在hive中创建hbase的eventlog对应表,并进行hive表和hbase表关联</a></span><span class="md-toc-item md-toc-h6" data-ref="n139"><a class="md-toc-inner" href="#511创建一个中间表ps要和mysql表结构保持一致计算结果存放此表并同步mysql）">5.1.1创建一个中间表（PS：要和MySql表结构保持一致，计算结果存放此表并同步MySql）</a></span><span class="md-toc-item md-toc-h6" data-ref="n141"><a class="md-toc-inner" href="#512创建一个临时表ps存放中间结果）">5.1.2创建一个临时表（PS：存放中间结果）</a></span><span class="md-toc-item md-toc-h4" data-ref="n143"><a class="md-toc-inner" href="#52编写platformdimension和datedimension">5.2编写platformdimension和datedimension<span>	</span></a></span><span class="md-toc-item md-toc-h4" data-ref="n147"><a class="md-toc-inner" href="#53创建hive的function">5.3创建hive的function</a></span><span class="md-toc-item md-toc-h4" data-ref="n150"><a class="md-toc-inner" href="#54编写hql语句进行计算">5.4编写HQL语句进行计算</a></span><span class="md-toc-item md-toc-h6" data-ref="n151"><a class="md-toc-inner" href="#541根据用户的角度统计每个页面的浏览量">5.4.1根据用户的角度统计每个页面的浏览量</a></span><span class="md-toc-item md-toc-h4" data-ref="n163"><a class="md-toc-inner" href="#55使用sqoop将hive中的数据同步到mysql里面">5.5使用Sqoop将hive中的数据同步到MySql里面</a></span></p></div><blockquote><p><span>学习文档参考：</span><a href='http://flume.apache.org/releases/content/1.9.0/FlumeUserGuide.html' target='_blank' class='url'>http://flume.apache.org/releases/content/1.9.0/FlumeUserGuide.html</a><span> </span></p></blockquote><h2><a name="1flume是什么" class="md-header-anchor"></a><span>1.Flume是什么?</span></h2><p><span>Flume简单概括就是一个收集日志的工具，它可以通过调用接口，RPC，还有网页的一些操作进行日志的收集。它是一个分布式开源的Java编写的由Apache维护的项目。</span></p><h2><a name="2flume如何搭建" class="md-header-anchor"></a><span>2.Flume如何搭建</span></h2><p><span> </span><strong><span>搭建前提条件</span></strong></p><h4><a name="21下载并解压到指定目录" class="md-header-anchor"></a><span>2.1下载并解压到指定目录</span></h4><p><span>崇尚授人以渔的思想，我说给大家怎么下载就行了，就不直接放连接了，大家可以直接输入官网地址  </span><a href='http://flume.apache.org' target='_blank' class='url'>http://flume.apache.org</a><span> ，一般在官网的上方或者左边都会有Download按钮，这个在左侧，然后点进去下载想要的版本即可。  这个会有点慢，如果嫌弃的化，可以通过相关镜像网站进行下载，可以百度搜索软件镜像，就能搜到很多镜像网站，在里面就可以下载，如果你下载的东西属于Apache旗下的，可以看的有专门的一个Apache目录，里面存的都是Apache旗下相关产品。</span></p><p><span>可以先本地下载，然后通过ftp上传，也可以直接在服务器下载。</span></p><p><span>我这里下载好后，解压到了服务器/opt 目录下面，并修改了下目录名称为flume(你也可以不改，配置环境变量的时候按照实际情况来就行了。)</span></p><h4><a name="22在flume-envsh里面配置java路径" class="md-header-anchor"></a><span>2.2在flume-env.sh里面配置Java路径</span></h4><p><span>进入到 conf目录下面，对flume-env.sh进行编辑，将export JAVA_HOME修改为实际路径。</span><span>	</span></p><blockquote><p><span>cd /opt/flume/conf/</span></p><p><span>vim flume-env.sh</span></p></blockquote><p><code>export JAVA_HOME=/opt/java/jdk1.8.0_221</code></p><h4><a name="23添加flume环境变量" class="md-header-anchor"></a><span>2.3添加Flume环境变量</span></h4><p><span>环境变量存放的是软件的具体位置，运行程序命令会根据配置的变量找到软件并执行，否则会报错。（通过手动下载并上传到Linux服务器的都需要配置环境变量。）</span></p><blockquote><p><span>vim /etc/profile</span></p></blockquote><p><code>export FLUME_HOME=/opt/flume</code></p><p><code>export FLUME_CONF_DIR=/opt/flume/conf</code></p><p><code>PATH=$FLUME_HOME/bin</code></p><blockquote><p><span>source /etc/profile</span></p></blockquote><h4><a name="24通过flume-ng-version验证是否配置成功" class="md-header-anchor"></a><span>2.4通过flume-ng version验证是否配置成功</span></h4><p><span>直接控制台运行 </span><code>flume-ng version</code></p><p><span>显示Flume 1.6.0 就好了，如果显示了Error什么报错信息先不用管。</span></p><h2><a name="3flume应用" class="md-header-anchor"></a><span>3.Flume应用</span></h2><p><span>日志采集系统：</span></p><p><img src="https://bigdataimage-1259495827.cos.ap-beijing.myqcloud.com/Flume/%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90%E7%B3%BB%E7%BB%9F%E6%B5%81%E7%A8%8B%E5%9B%BE.png" referrerpolicy="no-referrer" alt="lkXDG8.png"></p><h4><a name="31配置nginx环境" class="md-header-anchor"></a><span>3.1配置nginx环境</span></h4><p><span>请参考菜鸟教程： </span><a href='https://www.runoob.com/linux/nginx-install-setup.html' target='_blank' class='url'>https://www.runoob.com/linux/nginx-install-setup.html</a><span> </span></p><p><span>按照上述步骤安装完后，需要对nginx配置下访问日志格式：</span></p><p><span>编辑nginx.conf，默认安装路径在/etc/nginx下</span></p><blockquote><p><span>cd /etc/nginx</span></p><p><span>vim nginx.conf</span></p></blockquote><p><span>在http模块下面添加:</span></p><p><strong><span>解析</span></strong><span>：(以^A为日志分隔符，remote_addr代表远程地址，msec代表访问时间，http_host代表访问主机名，request_uri代表访问资源)</span></p><p><code>log_format my_format &#39;$remote_addr^A$msec^A$http_host^A$request_uri&#39;;</code></p><p><span>在server模块下面添加:</span></p><p><strong><span>解析</span></strong><span>：（访问地址 域名/log.gif，请求格式是image，存放地址是/opt/data/access.log  ）</span></p><p><span> </span><code>location =/log.gif {
+         default_type image/gif;
+         access_log /opt/data/access.log my_format;
+}</code></p><p><span>这样访问nginx的时候就会生成类似下面的内容：</span></p><p><code>192.168.40.1^A1577365502.563^Atuge1^A/log.gif?en=e_crt&amp;oid=123456&amp;on=%E6%B5%8B%E8%AF%95%E8%AE%A2%E5%8D%95123456&amp;cua=524.01&amp;cut=RMB&amp;pt=alipay&amp;ver=1&amp;pl=website&amp;sdk=js&amp;u_ud=039F6588-ED65-4187-87CF-9DBBC9F19645&amp;u_mid=zhangsan&amp;u_sd=605DECAA-93C0-46B7-AC47-7B1898DBD6BC&amp;c_time=1577365502881&amp;l=zh-CN&amp;b_iev=Mozilla%2F5.0%20(Windows%20NT%2010.0%3B%20WOW64)%20AppleWebKit%2F537.36%20(KHTML%2C%20like%20Gecko)%20Chrome%2F78.0.3904.97%20Safari%2F537.36&amp;b_rst=1536*86</code></p><p>&nbsp;</p><h4><a name="32编写触发事件传输代码" class="md-header-anchor"></a><span>3.2编写触发事件传输代码</span></h4><p><span>代码思路：</span></p><ul><li><span>前端通过触发事件，生成image格式数据发送。</span></li><li><span>后端通过API接口直接发送Get请求。</span></li></ul><p><span>代码连接： </span><a href='https://gitee.com/shuai7boy/BIG_DATA_LOG' target='_blank' class='url'>https://gitee.com/shuai7boy/BIG_DATA_LOG</a><span> </span></p><h4><a name="33运行flume将本地日志写入hdfs" class="md-header-anchor"></a><span>3.3运行Flume，将本地日志写入HDFS</span></h4><p><span>编写flume代码，参考官方案例： </span><a href='http://flume.apache.org/releases/content/1.6.0/FlumeUserGuide.html' target='_blank' class='url'>http://flume.apache.org/releases/content/1.6.0/FlumeUserGuide.html</a><span> </span></p><p><span>在安装Linux的服务器上，创建一个监控文件（姑且取名optionHdfs.conf）：</span></p><blockquote><p><span>#</span><span> example.conf: A single-node Flume configuration</span></p><p><span>#</span><span> Name the components on this agent</span>
+<span>a1.sources = r1</span>
+<span>a1.sinks = k1</span>
+<span>a1.channels = c1</span></p><p><span>#</span><span> Describe/configure the source</span>
+<span>a1.sources.r1.type = exec</span>
+<span>a1.sources.r1.command = tail -F /opt/data/access.log --监控文件路径，新增加内容就会往hdfs里面写。</span></p><p><span>#</span><span> Describe the sink</span>
+<span>a1.sinks.k1.type = hdfs</span>
+<span>a1.sinks.k1.hdfs.path =hdfs://tuge2:9000/flume/webdata/%Y-%m-%d  --填写active NameNode</span>
+<span>a1.sinks.k1.hdfs.useLocalTimeStamp = true</span>
+<span>a1.sinks.k1.hdfs.filePrefix = events-</span>
+<span>a1.sinks.k1.hdfs.round = true</span>
+<span>a1.sinks.k1.hdfs.roundValue = 10</span>
+<span>a1.sinks.k1.hdfs.roundUnit = minute</span></p><p><span>#</span><span> Use a channel which buffers events in memory</span>
+<span>a1.channels.c1.type = memory</span>
+<span>a1.channels.c1.capacity = 1000</span>
+<span>a1.channels.c1.transactionCapacity = 100</span></p><p><span>#</span><span> Bind the source and sink to the channel</span>
+<span>a1.sources.r1.channels = c1</span>
+<span>a1.sinks.k1.channel = c1</span></p></blockquote><p>&nbsp;</p><p><span>运行flume，同样参考官方来就行：flume-ng agent --conf conf --conf-file optionHdfs.conf --name a1 -Dflume.root.logger=INFO,console</span></p><p><span>运行后就按照文件规则将日志里面的内容导入hdfs里了。</span></p><h4><a name="34编写etl代码将hdfs内容导入到hbase里面" class="md-header-anchor"></a><span>3.4编写ETL代码，将HDFS内容导入到HBase里面</span></h4><p><span>代码思路：</span></p><ul><li><span>使用Map/Reduce将hdfs中的内容提取出来进行分割处理，然后Map到HBase里面。</span></li></ul><p><span>代码连接：</span><a href='https://gitee.com/shuai7boy/BIG_DATA_ETL' target='_blank' class='url'>https://gitee.com/shuai7boy/BIG_DATA_ETL</a></p><h4><a name="35使用mapreduce将hbase数据分析处理后导入到mysql" class="md-header-anchor"></a><span>3.5使用Map/Reduce将HBase数据分析处理后导入到MySql</span></h4><p><span>数据和维度：</span></p><ul><li><span>用户某段时间活跃量</span></li><li><span>用户某段时间基于某个浏览器的活跃量</span></li><li><span>用户某段时间新增认数</span></li><li><span>用户某段时间基于某个浏览器的新增人数</span></li></ul><p><span>主要拿用户时间活跃量和用户某段时间基于某个浏览器的活跃量来讨论。</span></p><p><span>代码思路：</span></p><ul><li><p><span>定义来源：</span></p><p><span>在Runner类里面定义来源为HBase。</span></p></li><li><p><span>定义维度</span></p><p><span>将基于用户活跃度，基于某平台的用户活跃度，新增用户数，基于某平台的新增用户数等维度进行设定类。</span></p></li><li><p><span>进行Map:</span></p><p><span>继承TableMapper</span></p><p><span>根据查询的数据来源，映射成 维度+用户信息。</span></p></li><li><p><span>进行Reduce:</span></p><p><span>继承Reducer</span></p><p><span>计算成 维度+用户去重。</span></p></li><li><p><span>进行To MySql：</span></p><p><span>继承OutputFormat重写getRecordWriter，checkOutputSpecs，getOutputCommitter</span></p><p><span>继承RecordWriter重写write和close</span></p><p><span>继承IDimensionConverter重写getDimensionIdByValue，executeSql</span></p><p><span>在Runner里面定义写入MySql。SQL语句都定义在了配置文件里面，根据维度进行调用。</span></p><p><span>首先判断各个维度是否存在，不存在先写入维度信息。 然后就是写入更新统计信息（每映射10条更新一次。）</span></p><p><span>代码链接： </span><a href='https://gitee.com/shuai7boy/BIG_DATA_TOMYSQL' target='_blank' class='url'>https://gitee.com/shuai7boy/BIG_DATA_TOMYSQL</a><span> </span></p><p><span>   </span></p></li></ul><h2><a name="4sqoop是什么" class="md-header-anchor"></a><span>4.Sqoop是什么？</span></h2><p><span>Sqoop是一款导入导出数据的工具，可以将MySql，Oracel等关系型数据据导入到HDFS,Hive，HBase里面。</span></p><p><span>官方文档： </span><a href='http://sqoop.apache.org/docs/1.4.6/SqoopUserGuide.html' target='_blank' class='url'>http://sqoop.apache.org/docs/1.4.6/SqoopUserGuide.html</a><span> </span></p><h2><a name="5使用sqoop将hbase数据计算并导入mysql" class="md-header-anchor"></a><span>5.使用Sqoop将HBase数据计算并导入MySql</span></h2><h4><a name="50安装sqoop" class="md-header-anchor"></a><span>5.0安装Sqoop</span></h4><p><span>1.在Linux服务器对Sqoop进行解压</span></p><p><span>我这里下载的是1.4.6版本。</span><strong><span>请注意下载的时候一定要安装sqoop-1.4.6.bin__hadoop-2.0.4-alpha.tar.gz  压缩包，不要下载 sqoop-1.4.6.tar.gz  压缩包，因为这个压缩包少东西。</span></strong></p><p><span>下载地址 </span><a href='http://archive.apache.org/dist/sqoop/1.4.6/' target='_blank' class='url'>http://archive.apache.org/dist/sqoop/1.4.6/</a><span> ，</span></p><p><span>下载好后使用ftp工具将文件上传到Linux服务器上（我上传到了/opt/sqoop下面）</span></p><p><span>然后使用tar -xvf sqoop-1.4.6.bin__hadoop-2.0.4-alpha.tar.gz  进行解压。</span></p><p><span>2.修改配置文件名字</span></p><p><span>进入到conf文件夹下，</span></p><p><span>mv   sqoop-env-template.sh sqoop-env.sh</span></p><p><span>3.配置环境变量</span></p><p><span>vim /etc/profile</span></p><p><span>添加：</span></p><p><span>export SQOOP_HOME=/opt/sqoop/sqoop-1.4.6</span></p><p><span>path=$SQOOP_HOME/bin</span></p><p><span>4.校验是否安装成功</span></p><p><span>sqoop --version</span></p><p><span>（如果出现异常，请根据异常修改bin下面的configure-sqoop）</span></p><h4><a name="51在hive里面创建数据表进行存数据" class="md-header-anchor"></a><span>5.1在Hive里面创建数据表进行存数据</span></h4><p><span>HBase表结构：Row，Name（列族+限定符），timestamp，Value</span></p><h6><a name="510在hive中创建hbase的eventlog对应表并进行hive表和hbase表关联" class="md-header-anchor"></a><span>5.1.0在hive中创建hbase的eventlog对应表,并进行hive表和hbase表关联</span></h6><p><span>hive和hbase表关联官方文档： </span><a href='https://cwiki.apache.org/confluence/display/Hive/HBaseIntegration' target='_blank' class='url'>https://cwiki.apache.org/confluence/display/Hive/HBaseIntegration</a><span> </span></p><p><span>CREATE EXTERNAL TABLE event_logs(</span>
+<span>key string, pl string, en string, s_time bigint, p_url string, u_ud string, u_sd string</span>
+<span>) ROW FORMAT SERDE &#39;org.apache.hadoop.hive.hbase.HBaseSerDe&#39;</span>
+<span>STORED BY &#39;org.apache.hadoop.hive.hbase.HBaseStorageHandler&#39;</span>
+<span>with serdeproperties(&#39;hbase.columns.mapping&#39;=&#39;:key,log:pl,log:en,log:s_time,log:p_url,log:u_ud,log:u_sd&#39;)</span>
+<span>tblproperties(&#39;hbase.table.name&#39;=&#39;eventlog&#39;);</span></p><h6><a name="511创建一个中间表ps要和mysql表结构保持一致计算结果存放此表并同步mysql）" class="md-header-anchor"></a><span>5.1.1创建一个中间表（PS：要和MySql表结构保持一致，计算结果存放此表并同步MySql）</span></h6><p><span> CREATE TABLE stats_view_depth (</span>
+<span>  platform_dimension_id bigint ,</span>
+<span>  data_dimension_id bigint , </span>
+<span>  kpi_dimension_id bigint , </span>
+<span>  pv1 bigint , </span>
+<span>  pv2 bigint , </span>
+<span>  pv3 bigint , </span>
+<span>  pv4 bigint , </span>
+<span>  pv5_10 bigint , </span>
+<span>  pv10_30 bigint , </span>
+<span>  pv30_60 bigint , </span>
+<span>  pv60_plus bigint , </span>
+<span>  created string</span>
+<span>) row format delimited fields terminated by &#39;\t&#39;;</span></p><h6><a name="512创建一个临时表ps存放中间结果）" class="md-header-anchor"></a><span>5.1.2创建一个临时表（PS：存放中间结果）</span></h6><p><span>CREATE TABLE stats_view_depth_tmp(pl string, date string, col string, ct bigint);</span></p><h4><a name="52编写platformdimension和datedimension" class="md-header-anchor"></a><span>5.2编写platformdimension和datedimension</span><span>	</span></h4><p><strong><span>注：要继承udf</span></strong></p><pre spellcheck="false" class="md-fences md-end-block ty-contain-cm modeLoaded" lang="" style="break-inside: unset;"><div class="CodeMirror cm-s-inner CodeMirror-wrap" lang=""><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><span><span>​</span>x</span></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">public class DateDimensionUDF extends UDF {</span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">IDimensionConverter dimension=new DimensionConverImpl();</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">public IntWritable evaluate(Text txt) {</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-tab" role="presentation" cm-text="	">    </span>try {</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-tab" role="presentation" cm-text="	">    </span><span class="cm-tab" role="presentation" cm-text="	">    </span>DateDimension dateDimension=DateDimension.buildDate(TimeUtil.parseString2Long(txt.toString()), DateEnum.DAY);</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" class="cm-tab-wrap-hack" style="padding-right: 0.1px;"><span class="cm-tab" role="presentation" cm-text="	">    </span><span class="cm-tab" role="presentation" cm-text="	">    </span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-tab" role="presentation" cm-text="	">    </span><span class="cm-tab" role="presentation" cm-text="	">    </span>int id= dimension.getDimensionIdByValue(dateDimension);</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-tab" role="presentation" cm-text="	">    </span><span class="cm-tab" role="presentation" cm-text="	">    </span>return new IntWritable(1);</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" class="cm-tab-wrap-hack" style="padding-right: 0.1px;"><span class="cm-tab" role="presentation" cm-text="	">    </span><span class="cm-tab" role="presentation" cm-text="	">    </span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-tab" role="presentation" cm-text="	">    </span>}catch(IOException ex){</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-tab" role="presentation" cm-text="	">    </span><span class="cm-tab" role="presentation" cm-text="	">    </span>throw new RuntimeException("获取datedimension id异常");</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" class="cm-tab-wrap-hack" style="padding-right: 0.1px;"><span class="cm-tab" role="presentation" cm-text="	">    </span>}<span class="cm-tab" role="presentation" cm-text="	">   </span><span class="cm-tab" role="presentation" cm-text="	">    </span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="">​</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">}</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">}</span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 448px;"></div><div class="CodeMirror-gutters" style="display: none; height: 448px;"></div></div></div></pre><p><em><span>将编写的内容进行打包上传到linux服务器</span></em></p><h4><a name="53创建hive的function" class="md-header-anchor"></a><span>5.3创建hive的function</span></h4><p><span>create function date_convert as &#39;shuai7boy.vip.transformer.hive.DateDimensionUDF&#39; using jar &#39;hdfs://tuge2:9000/transform/transform-0.0.1.jar&#39;; </span></p><p><strong><span>其中一开始没加端口号报错</span></strong><span>：java.lang.IllegalArgumentException: java.net.UnknownHostException: transform ，然后参考博文 </span><a href='https://blog.csdn.net/heming621/article/details/53317562' target='_blank' class='url'>https://blog.csdn.net/heming621/article/details/53317562</a><span>  解决了。</span></p><h4><a name="54编写hql语句进行计算" class="md-header-anchor"></a><span>5.4编写HQL语句进行计算</span></h4><h6><a name="541根据用户的角度统计每个页面的浏览量" class="md-header-anchor"></a><span>5.4.1根据用户的角度统计每个页面的浏览量</span></h6><p><span>上面我们将HDFS数据导入到了HBase里面，并且做了Hive表和HBase表同步，又因为Hive表支持HQL语句。所在在Hive里面使用HQL语句就能进行分析。</span></p><p><em><span>计算用户的浏览深度</span></em></p><p><span>from (</span>
+<span>  select </span>
+<span>    pl, from_unixtime(cast(s_time/1000 as bigint),&#39;yyyy-MM-dd&#39;) as day, u_ud, </span>
+<span>    (case when count(p_url) = 1 then &quot;pv1&quot; </span>
+<span>      when count(p_url) = 2 then &quot;pv2&quot; </span>
+<span>      when count(p_url) = 3 then &quot;pv3&quot; </span>
+<span>      when count(p_url) = 4 then &quot;pv4&quot; </span>
+<span>      when count(p_url) &gt;= 5 and count(p_url) &lt;10 then &quot;pv5_10&quot; </span>
+<span>      when count(p_url) &gt;= 10 and count(p_url) &lt;30 then &quot;pv10_30&quot; </span>
+<span>      when count(p_url) &gt;=30 and count(p_url) &lt;60 then &quot;pv30_60&quot;</span><br/><span>      else &#39;pv60_plus&#39; end) as pv </span>
+<span>  from event_logs </span>
+<span>  where </span>
+<span>    en=&#39;e_pv&#39; </span>
+<span>    and p_url is not null </span>
+<span>    and pl is not null </span>
+<span>    and s_time &gt;= unix_timestamp(&#39;2016-06-08&#39;,&#39;yyyy-MM-dd&#39;)</span><em><span>1000 </span>
+<span>    and s_time &lt; unix_timestamp(&#39;2016-06-09&#39;,&#39;yyyy-MM-dd&#39;)</span></em><span>1000</span>
+<span>  group by </span>
+<span>    pl, from_unixtime(cast(s_time/1000 as bigint),&#39;yyyy-MM-dd&#39;), u_ud</span>
+<span>) as tmp</span>
+<span>insert overwrite table stats_view_depth_tmp </span>
+<span>  select pl,day,pv,count(distinct u_ud) as ct where u_ud is not null group by pl,day,pv;</span></p><p><span>--将行转列</span></p><p><span>with tmp as </span>
+<span>(</span>
+<span>select pl,date as date1,ct as pv1,0 as pv2,0 as pv3,0 as pv4,0 as pv5_10,0 as pv10_30,0 as pv30_60,0 as pv60_plus from stats_view_depth_tmp where col=&#39;pv1&#39; union all</span>
+<span>select pl,date as date1,0 as pv1,ct as pv2,0 as pv3,0 as pv4,0 as pv5_10,0 as pv10_30,0 as pv30_60,0 as pv60_plus from stats_view_depth_tmp where col=&#39;pv2&#39; union all</span>
+<span>select pl,date as date1,0 as pv1,0 as pv2,ct as pv3,0 as pv4,0 as pv5_10,0 as pv10_30,0 as pv30_60,0 as pv60_plus from stats_view_depth_tmp where col=&#39;pv3&#39; union all</span>
+<span>select pl,date as date1,0 as pv1,0 as pv2,0 as pv3,ct as pv4,0 as pv5_10,0 as pv10_30,0 as pv30_60,0 as pv60_plus from stats_view_depth_tmp where col=&#39;pv4&#39; union all</span>
+<span>select pl,date as date1,0 as pv1,0 as pv2,0 as pv3,0 as pv4,ct as pv5_10,0 as pv10_30,0 as pv30_60,0 as pv60_plus from stats_view_depth_tmp where col=&#39;pv5_10&#39; union all</span>
+<span>select pl,date as date1,0 as pv1,0 as pv2,0 as pv3,0 as pv4,0 as pv5_10,ct as pv10_30,0 as pv30_60,0 as pv60_plus from stats_view_depth_tmp where col=&#39;pv10_30&#39; union all</span>
+<span>select pl,date as date1,0 as pv1,0 as pv2,0 as pv3,0 as pv4,0 as pv5_10,0 as pv10_30,ct as pv30_60,0 as pv60_plus from stats_view_depth_tmp where col=&#39;pv30_60&#39; union all</span>
+<span>select pl,date as date1,0 as pv1,0 as pv2,0 as pv3,0 as pv4,0 as pv5_10,0 as pv10_30,0 as pv30_60,ct as pv60_plus from stats_view_depth_tmp where col=&#39;pv60_plus&#39; union all</span></p><p><span>select &#39;all&#39; as pl,date as date1,ct as pv1,0 as pv2,0 as pv3,0 as pv4,0 as pv5_10,0 as pv10_30,0 as pv30_60,0 as pv60_plus from stats_view_depth_tmp where col=&#39;pv1&#39; union all</span>
+<span>select &#39;all&#39; as pl,date as date1,0 as pv1,ct as pv2,0 as pv3,0 as pv4,0 as pv5_10,0 as pv10_30,0 as pv30_60,0 as pv60_plus from stats_view_depth_tmp where col=&#39;pv2&#39; union all</span>
+<span>select &#39;all&#39; as pl,date as date1,0 as pv1,0 as pv2,ct as pv3,0 as pv4,0 as pv5_10,0 as pv10_30,0 as pv30_60,0 as pv60_plus from stats_view_depth_tmp where col=&#39;pv3&#39; union all</span>
+<span>select &#39;all&#39; as pl,date as date1,0 as pv1,0 as pv2,0 as pv3,ct as pv4,0 as pv5_10,0 as pv10_30,0 as pv30_60,0 as pv60_plus from stats_view_depth_tmp where col=&#39;pv4&#39; union all</span>
+<span>select &#39;all&#39; as pl,date as date1,0 as pv1,0 as pv2,0 as pv3,0 as pv4,ct as pv5_10,0 as pv10_30,0 as pv30_60,0 as pv60_plus from stats_view_depth_tmp where col=&#39;pv5_10&#39; union all</span>
+<span>select &#39;all&#39; as pl,date as date1,0 as pv1,0 as pv2,0 as pv3,0 as pv4,0 as pv5_10,ct as pv10_30,0 as pv30_60,0 as pv60_plus from stats_view_depth_tmp where col=&#39;pv10_30&#39; union all</span>
+<span>select &#39;all&#39; as pl,date as date1,0 as pv1,0 as pv2,0 as pv3,0 as pv4,0 as pv5_10,0 as pv10_30,ct as pv30_60,0 as pv60_plus from stats_view_depth_tmp where col=&#39;pv30_60&#39; union all</span>
+<span>select &#39;all&#39; as pl,date as date1,0 as pv1,0 as pv2,0 as pv3,0 as pv4,0 as pv5_10,0 as pv10_30,0 as pv30_60,ct as pv60_plus from stats_view_depth_tmp where col=&#39;pv60_plus&#39;</span>
+<span>)</span>
+<span>from tmp</span>
+<span>insert overwrite table stats_view_depth </span>
+<span>select 2,date_convert(date1),6,sum(pv1),sum(pv2),sum(pv3),sum(pv4),sum(pv5_10),sum(pv10_30),sum(pv30_60),sum(pv60_plus),&#39;2017-01-10&#39; group by pl,date1;</span></p><p><strong><span>执行可能出现异常：Failed to recognize predicate &#39;xxx&#39;. Failed rule: &#39;identifier&#39; in column specification。</span></strong></p><p><span>解决方案：主要原因是使用了date关键字导致的，弃用保留关键字即可。</span></p><p><span>在hive-site.xml里面添加如下命令：</span></p><p><property>
+<span>    </span><name><span>hive.support.sql11.reserved.keywords</span></name>
+<span>    </span><value><span>false</span></value>
+</property></p><p><span>参考博客： </span><a href='https://blog.csdn.net/sjf0115/article/details/73244762' target='_blank' class='url'>https://blog.csdn.net/sjf0115/article/details/73244762</a><span> </span></p><h4><a name="55使用sqoop将hive中的数据同步到mysql里面" class="md-header-anchor"></a><span>5.5使用Sqoop将hive中的数据同步到MySql里面</span></h4><p><span>退出hive命令，执行以下语句：</span></p><p><span>sqoop export --connect jdbc:mysql://tuge1:3306/result_db --username root --password 123456 --table stats_view_depth --export-dir /user/hive/warehouse/stats_view_depth/* --input-fields-terminated-by &quot;</span><span>\</span><span>t&quot; --update-mode allowinsert --update-key platform_dimension_id,data_dimension_id,kpi_dimension_id;</span></p><p><span>然后就能在MySql里面看到数据了，以后的事情就是把数据在平台渲染下，这里就不演示了。</span></p><p><a href='https://www.cnblogs.com/shun7man/p/11518083.html?_blank'><span>系列传送门</span></a><span> </span></p></div>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<p><span style="font-size: 18px;">一.环境</span></p>
+<p>　　Hadoop部署环境：</p>
+<p>　　Centos3.10.0-327.el7.x86_64</p>
+<p>　　Hadoop2.6.5</p>
+<p>　　Java1.8.0_221</p>
+<p>　　代码运行环境:</p>
+<p>　　Windows 10</p>
+<p>　　Hadoop 2.6.5</p>
+<p>　　Java11.0.2　　</p>
+<p><span style="font-size: 18px;">二.安装Hadoop-Eclipse-Plugin</span></p>
+<p>&nbsp;　　在Eclipse中编译和运行Mapreduce程序，需要安装hadoop-eclipse-plugin，可下载Github上的&nbsp;<a href="https://github.com/winghc/hadoop2x-eclipse-plugin" target="_blank">hadoop2x-eclipse-plugin</a>&nbsp;。</p>
+<p>　　 下载后将release中的hadoop-eclipse-plugin-2.6.0.jar放在eclipse下面plugins目录下。</p>
+<p><span style="font-size: 18px;">三.配置Hadoop-Plugin</span></p>
+<p><span style="font-size: 18px;">　　</span>运行eclipse后，点击Window-&gt;Preferences在Hadoop Map/Reduce中填上计算机中安装的hadoop目录。</p>
+<p>　　&nbsp;<img src="https://img2018.cnblogs.com/blog/1747187/201910/1747187-20191030134951114-2122400306.png" alt="" />&nbsp; &nbsp; 　</p>
+<p><span style="font-size: 18px;">四.在Eclipse中操作HDFS中的文件</span></p>
+<p><span style="font-size: 18px;">&nbsp;　</span>我们之前一直使用命令操作Hdfs，接下来再配置几步就可以在Eclipse中可视化操作啦。</p>
+<p>&nbsp; &nbsp; &nbsp; 选择Window下面的Show View-&gt;Other... ，在弹出的框里面展开MapReduce Tools，选择Map/Reduce Locations点击Open。</p>
+<p>　　<img src="https://img2018.cnblogs.com/blog/1747187/201910/1747187-20191030140204995-102555653.png" alt="" /></p>
+<p>&nbsp;</p>
+<p>&nbsp;　　然后在弹出的栏目右键，点击New Hadoop location在弹出框General下面填上活跃的NameNode和端口号信息。</p>
+<p>　　<img src="https://img2018.cnblogs.com/blog/1747187/201910/1747187-20191030140646297-1149500995.png" alt="" /></p>
+<p>&nbsp;</p>
+<p>&nbsp;　　<img src="https://img2018.cnblogs.com/blog/1747187/201910/1747187-20191030140713769-21402411.png" alt="" /></p>
+<p>&nbsp;　　配置好后，可以在左侧刷新即可看到HDFS文件（Tips：对HDFS很多操作后，插件不会自动帮我们刷新内容，需要我们手动刷新）</p>
+<p>　　<img src="https://img2018.cnblogs.com/blog/1747187/201910/1747187-20191030141919086-681951804.png" alt="" />　&nbsp;</p>
+<p><span style="font-size: 18px;">五.在Eclipse中创建MapReduce项目</span></p>
+<p>&nbsp;　　选择File-&gt;New-&gt;Project...&nbsp; 选择Map/Reduce Project ，选择Next，填写项目名称，这里我起名MapReduceFirstDemo。</p>
+<p>　　 然后将服务器上的core-site.xml和hdfs-site.xml复制到项目根目录下，并在根目录下创建一个log4j.properties，填上如下内容：</p>
+<p>　　hadoop.root.logger=DEBUG, console<br />　　log4j.rootLogger = DEBUG, console<br />　　log4j.appender.console=org.apache.log4j.ConsoleAppender<br />　　log4j.appender.console.target=System.out<br />　　log4j.appender.console.layout=org.apache.log4j.PatternLayout<br />　　log4j.appender.console.layout.ConversionPattern=%d{yy/MM/dd HH:mm:ss} %p %c{2}: %m%n</p>
+<p>　&nbsp; &nbsp;&nbsp;在src中右键创建一个Package，起名MapReduceFirstPack，然后在MapReduceFirstPack下面创建一个WordCount类。大致结构如下图：</p>
+<p>　　&nbsp;<img src="https://img2018.cnblogs.com/blog/1747187/201910/1747187-20191030142348505-129893044.png" alt="" /></p>
+<p>&nbsp;　 将下面的代码复制到WordCount里面　　</p>
+<div class="cnblogs_code">
+<pre><span style="color: #000000;">package MapRedoceFirstPack;
+
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.StringTokenizer;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.util.GenericOptionsParser;
+
+
+</span><span style="color: #0000ff;">public</span> <span style="color: #0000ff;">class</span><span style="color: #000000;"> WordCount {
+
+    </span><span style="color: #0000ff;">public</span> <span style="color: #0000ff;">static</span> <span style="color: #0000ff;">void</span><span style="color: #000000;"> main(String[] args) throws Exception {
+        </span><span style="color: #008000;">//</span><span style="color: #008000;"> TODO Auto-generated method stub</span>
+        Configuration conf=<span style="color: #0000ff;">new</span><span style="color: #000000;"> Configuration();
+        String[] otherArgs</span>=(<span style="color: #0000ff;">new</span><span style="color: #000000;"> GenericOptionsParser(conf, args)).getRemainingArgs();
+        </span><span style="color: #0000ff;">if</span>(otherArgs.length&lt;<span style="color: #800080;">2</span><span style="color: #000000;">) {
+            System.err.println(</span><span style="color: #800000;">"</span><span style="color: #800000;">Usage:wordcount</span><span style="color: #800000;">"</span><span style="color: #000000;">);
+            System.exit(</span><span style="color: #800080;">2</span><span style="color: #000000;">);
+        }
+        Job job</span>=Job.getInstance(conf,<span style="color: #800000;">"</span><span style="color: #800000;">word count</span><span style="color: #800000;">"</span><span style="color: #000000;">);
+        job.setJarByClass(WordCount.</span><span style="color: #0000ff;">class</span><span style="color: #000000;">);
+        job.setMapperClass(WordCount.TokenizerMapper.</span><span style="color: #0000ff;">class</span><span style="color: #000000;">);
+        job.setCombinerClass(WordCount.IntSumReducer.</span><span style="color: #0000ff;">class</span><span style="color: #000000;">);
+        job.setReducerClass(WordCount.IntSumReducer.</span><span style="color: #0000ff;">class</span><span style="color: #000000;">);
+        job.setOutputKeyClass(Text.</span><span style="color: #0000ff;">class</span><span style="color: #000000;">);
+        job.setOutputValueClass(IntWritable.</span><span style="color: #0000ff;">class</span><span style="color: #000000;">);
+        </span><span style="color: #0000ff;">for</span>(<span style="color: #0000ff;">int</span> i=<span style="color: #800080;">0</span>;i&lt;otherArgs.length-<span style="color: #800080;">1</span>;++<span style="color: #000000;">i) {
+            FileInputFormat.addInputPath(job, </span><span style="color: #0000ff;">new</span><span style="color: #000000;"> Path(otherArgs[i]));
+        }
+        FileOutputFormat.setOutputPath(job, </span><span style="color: #0000ff;">new</span> Path(otherArgs[otherArgs.length-<span style="color: #800080;">1</span><span style="color: #000000;">]));
+        System.exit(job.waitForCompletion(</span><span style="color: #0000ff;">true</span>)?<span style="color: #800080;">0</span>:<span style="color: #800080;">1</span><span style="color: #000000;">);
+        
+    }
+    
+    
+    </span><span style="color: #0000ff;">private</span> <span style="color: #0000ff;">static</span> <span style="color: #0000ff;">class</span> IntSumReducer extends Reducer&lt;Text,IntWritable,Text,IntWritable&gt;<span style="color: #000000;">{
+        </span><span style="color: #0000ff;">public</span><span style="color: #000000;"> IntSumReducer() {}
+        
+        </span><span style="color: #0000ff;">private</span> IntWritable result=<span style="color: #0000ff;">new</span><span style="color: #000000;"> IntWritable();
+        </span><span style="color: #0000ff;">public</span> <span style="color: #0000ff;">void</span> reduce(Text key,Iterable&lt;IntWritable&gt; values,Reducer&lt;Text,IntWritable,Text,IntWritable&gt;<span style="color: #000000;">.Context context) throws IOException,InterruptedException{
+            </span><span style="color: #0000ff;">int</span> sum=<span style="color: #800080;">0</span><span style="color: #000000;">;
+            IntWritable val;
+            </span><span style="color: #0000ff;">for</span>(Iterator i$=values.iterator();i$.hasNext();sum+=val.<span style="color: #0000ff;">get</span><span style="color: #000000;">()) {
+                val</span>=<span style="color: #000000;">(IntWritable)i$.next();
+            }
+            </span><span style="color: #0000ff;">this</span>.result.<span style="color: #0000ff;">set</span><span style="color: #000000;">(sum);
+            context.write(key, </span><span style="color: #0000ff;">this</span><span style="color: #000000;">.result);
+        }
+    }
+    
+    </span><span style="color: #0000ff;">public</span> <span style="color: #0000ff;">static</span> <span style="color: #0000ff;">class</span> TokenizerMapper extends Mapper&lt;Object,Text,Text,IntWritable&gt;<span style="color: #000000;">{
+        </span><span style="color: #0000ff;">private</span> <span style="color: #0000ff;">static</span> final IntWritable one=<span style="color: #0000ff;">new</span> IntWritable(<span style="color: #800080;">1</span><span style="color: #000000;">);
+        </span><span style="color: #0000ff;">private</span> Text word=<span style="color: #0000ff;">new</span><span style="color: #000000;"> Text();
+        </span><span style="color: #0000ff;">public</span><span style="color: #000000;"> TokenizerMapper() {
+            
+        }
+        </span><span style="color: #0000ff;">public</span> <span style="color: #0000ff;">void</span> map(Object key,Text value,Mapper&lt;Object,Text,Text,IntWritable&gt;<span style="color: #000000;">.Context context) throws IOException,InterruptedException {
+            StringTokenizer itr</span>=<span style="color: #0000ff;">new</span><span style="color: #000000;"> StringTokenizer(value.toString());
+            </span><span style="color: #0000ff;">while</span><span style="color: #000000;">(itr.hasMoreTokens()) {
+                </span><span style="color: #0000ff;">this</span>.word.<span style="color: #0000ff;">set</span><span style="color: #000000;">(itr.nextToken());
+                context.write(</span><span style="color: #0000ff;">this</span><span style="color: #000000;">.word, one);
+            }
+            
+        }
+        
+        
+    }
+
+}</span></pre>
+</div>
+<p>&nbsp;<span style="font-size: 18px;">六.在Eclipse中运行MapReduce项目</span></p>
+<p>&nbsp;　在运行上述项目之前，我们需要配置下运行参数。 在项目右键Run As-&gt;Run Configuration。 在弹出的框里面选择Java Applicaton下面的WordCount（Tips：如果没有WordCount，则双击Java Application就有了），在Arguments下面添加input output（Tips：代表了输入目录和输出目录，输入目录放要计算的内容，这个需要自己创建，输出目录一定不要创建，它会自动生成，否则会提示已存在此目录的错误），如下图:</p>
+<p>　&nbsp;&nbsp;<img src="https://img2018.cnblogs.com/blog/1747187/201910/1747187-20191030143416142-1763630471.png" alt="" /></p>
+<p>&nbsp;&nbsp;然后点击Run运行。</p>
+<p>&nbsp; 运行完毕后，在左侧刷新，在output目录可以看到两个文件，_SUCCESS是标识文件，代表执行成功的意思。part-r-00000存放的执行结果。</p>
+<p>&nbsp;<img src="https://img2018.cnblogs.com/blog/1747187/201910/1747187-20191030143652835-1975780666.png" alt="" /></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>另外推荐一篇不错的教程：&nbsp;<a href="http://dblab.xmu.edu.cn/blog/hadoop-build-project-using-eclipse/" target="_blank">http://dblab.xmu.edu.cn/blog/hadoop-build-project-using-eclipse/</a></p>
+<p><a href="https://www.cnblogs.com/shun7man/p/11518083.html" target="_blank">系列传送门</a></p>
