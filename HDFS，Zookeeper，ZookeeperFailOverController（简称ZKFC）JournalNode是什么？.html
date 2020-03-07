@@ -21,4 +21,3 @@
 <p>上面使用JournalManager遇到故障的时候需要手动切换NameNode节点，这样处理会很不及时，所以必须想个办法自动切换，这样就有了Zookeeper，然后配套的出现了ZKFC，ZKFC和NameNode是一一对应的，它是一个守护进程，它负责和ZK通信，并且时刻检查NameNode的健康状况。它通过不断的ping，如果能ping通，则说明节点是健康的。然后ZKFC会和ZK保持一个持久通话，及Session对话，并且ActiveNode在ZK里面记录了一个"锁"，这样就会Prevent其它节点成为ActiveNode，当会话丢失时，ZKFC会发通知给ZK，同时删掉"锁"，这个时候其它NameNode会去争抢并建立新的&ldquo;锁&rdquo;，这个过程叫ZKFC的选举。</p>
 <p>结合上面简要图如下：</p>
 <p>&nbsp;<img src="https://img2018.cnblogs.com/blog/1747187/201909/1747187-20190915160650385-1195861554.png" alt="" /></p>
-<p><a href="https://www.cnblogs.com/shun7man/p/11518083.html" target="_blank">系列传送门</a></p>
